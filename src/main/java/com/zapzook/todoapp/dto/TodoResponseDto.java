@@ -1,5 +1,6 @@
 package com.zapzook.todoapp.dto;
 
+import com.zapzook.todoapp.entity.Comment;
 import com.zapzook.todoapp.entity.Todo;
 import com.zapzook.todoapp.entity.User;
 import lombok.AllArgsConstructor;
@@ -8,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.Date;
+import java.util.List;
 
 @Getter
 @Setter
@@ -20,6 +22,7 @@ public class TodoResponseDto {
     private String username;
     private Date createdAt;
     private Boolean completed;
+    private List<CommentResponseDto> commentList;
 
     public TodoResponseDto(Todo todo){
         this.id = todo.getId();
@@ -27,11 +30,15 @@ public class TodoResponseDto {
         this.contents = todo.getContents();
         this.username = todo.getUser().getUsername();
         this.createdAt = todo.getCreatedAt();
+        this.completed = todo.getCompleted();
     }
-    public TodoResponseDto(Todo todo, int input){
+    public TodoResponseDto(Todo todo, List<CommentResponseDto> commentList){
+        this.id = todo.getId();
         this.title = todo.getTitle();
+        this.contents = todo.getContents();
         this.username = todo.getUser().getUsername();
         this.createdAt = todo.getCreatedAt();
         this.completed = todo.getCompleted();
+        this.commentList = commentList;
     }
 }

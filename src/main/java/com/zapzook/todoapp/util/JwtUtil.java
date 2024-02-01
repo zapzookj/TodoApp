@@ -1,4 +1,4 @@
-package com.zapzook.todoapp.jwt;
+package com.zapzook.todoapp.util;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;

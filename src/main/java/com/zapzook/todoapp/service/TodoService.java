@@ -1,9 +1,12 @@
 package com.zapzook.todoapp.service;
 
+import com.zapzook.todoapp.dto.CommentResponseDto;
 import com.zapzook.todoapp.dto.TodoRequestDto;
 import com.zapzook.todoapp.dto.TodoResponseDto;
+import com.zapzook.todoapp.entity.Comment;
 import com.zapzook.todoapp.entity.Todo;
 import com.zapzook.todoapp.entity.User;
+import com.zapzook.todoapp.repository.CommentRepository;
 import com.zapzook.todoapp.repository.TodoRepository;
 import com.zapzook.todoapp.security.UserDetailsImpl;
 import com.zapzook.todoapp.util.Util;
@@ -11,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -18,6 +22,7 @@ import java.util.List;
 public class TodoService {
 
     private final TodoRepository todoRepository;
+    private final CommentRepository commentRepository;
     private final Util util;
     @Transactional
     public TodoResponseDto createTodo(TodoRequestDto requestDto, User user) {
@@ -27,12 +32,17 @@ public class TodoService {
 
     public TodoResponseDto getTodo(Long todoId) {
         Todo todo = util.findTodo(todoId);
-        return new TodoResponseDto(todo);
+        List<Comment> commentList = commentRepository.findByTodoId(todoId);
+        List<CommentResponseDto> commentResponseDtoList = new ArrayList<>();
+        for (Comment comment : commentList) {
+            commentResponseDtoList.add(new CommentResponseDto(comment));
+        }
+        return new TodoResponseDto(todo, commentResponseDtoList);
     }
 
     public List<TodoResponseDto> getTodoList() {
         return todoRepository.findAllByOrderByCreatedAtDesc().stream()
-                .map(todo -> new TodoResponseDto(todo, 1)).toList();
+                .map(TodoResponseDto::new).toList();
     }
     @Transactional
     public TodoResponseDto updateTodo(Long todoId, TodoRequestDto requestDto, User user) {
