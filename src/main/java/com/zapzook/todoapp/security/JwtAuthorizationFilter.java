@@ -1,5 +1,7 @@
 package com.zapzook.todoapp.security;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.zapzook.todoapp.dto.ResultResponseDto;
 import com.zapzook.todoapp.jwt.JwtUtil;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
@@ -16,6 +18,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 
 @Slf4j(topic = "JWT 검증 및 인가")
 public class JwtAuthorizationFilter extends OncePerRequestFilter {
@@ -37,6 +40,14 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
             if (!jwtUtil.validateToken(tokenValue)) {
                 log.error("Token Error");
+                res.setStatus(400);
+                res.setContentType("application/json");
+                res.setCharacterEncoding("UTF-8");
+
+                ResultResponseDto resultResponseDto = new ResultResponseDto("JWT 토큰이 유효하지 않습니다.", 400);
+                PrintWriter out = res.getWriter();
+                out.print(new ObjectMapper().writeValueAsString(resultResponseDto));
+                out.flush();
                 return;
             }
 

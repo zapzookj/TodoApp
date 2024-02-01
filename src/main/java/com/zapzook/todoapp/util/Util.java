@@ -1,13 +1,19 @@
 package com.zapzook.todoapp.util;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.zapzook.todoapp.dto.ResultResponseDto;
 import com.zapzook.todoapp.entity.Comment;
 import com.zapzook.todoapp.entity.Todo;
 import com.zapzook.todoapp.entity.User;
 import com.zapzook.todoapp.repository.CommentRepository;
 import com.zapzook.todoapp.repository.TodoRepository;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.io.IOException;
+import java.io.PrintWriter;
 
 @Transactional
 @RequiredArgsConstructor
@@ -39,6 +45,17 @@ public class Util {
             throw new IllegalArgumentException("username이 일치하지 않습니다!");
         }
         return comment;
+    }
+
+    public void authResult(HttpServletResponse response, String message, int statusCode) throws IOException {
+        response.setStatus(statusCode);
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+
+        ResultResponseDto resultResponseDto = new ResultResponseDto(message, statusCode);
+        PrintWriter out = response.getWriter();
+        out.print(new ObjectMapper().writeValueAsString(resultResponseDto));
+        out.flush();
     }
 
 

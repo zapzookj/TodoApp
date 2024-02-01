@@ -2,7 +2,7 @@ package com.zapzook.todoapp.controller;
 
 import com.zapzook.todoapp.dto.CommentRequestDto;
 import com.zapzook.todoapp.dto.CommentResponseDto;
-import com.zapzook.todoapp.dto.SuccessResponseDto;
+import com.zapzook.todoapp.dto.ResultResponseDto;
 import com.zapzook.todoapp.security.UserDetailsImpl;
 import com.zapzook.todoapp.service.CommentService;
 import lombok.RequiredArgsConstructor;
@@ -38,7 +38,7 @@ public class CommentController {
                                                 @PathVariable Long commentId,
                                                 @AuthenticationPrincipal UserDetailsImpl userDetails){
         commentService.deleteComment(todoId, commentId, userDetails.getUser());
-        SuccessResponseDto responseDto = new SuccessResponseDto("삭제 성공.", HttpStatus.OK.value());
+        ResultResponseDto responseDto = new ResultResponseDto("삭제 성공.", HttpStatus.OK.value());
         return ResponseEntity.ok(responseDto);
     }
 }

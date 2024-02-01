@@ -1,7 +1,7 @@
 package com.zapzook.todoapp.controller;
 
 import com.zapzook.todoapp.dto.SignupRequestDto;
-import com.zapzook.todoapp.dto.SuccessResponseDto;
+import com.zapzook.todoapp.dto.ResultResponseDto;
 import com.zapzook.todoapp.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -42,7 +42,7 @@ public class UserController {
             return ResponseEntity.ok("회원가입 실패!");
         }
         userService.signup(requestDto);
-        SuccessResponseDto responseDto = new SuccessResponseDto("회원가입에 성공하셨습니다.", HttpStatus.OK.value());
+        ResultResponseDto responseDto = new ResultResponseDto("회원가입에 성공하셨습니다.", HttpStatus.OK.value());
         return ResponseEntity.ok(responseDto);
     }
 //    @PostMapping("/user/signup")

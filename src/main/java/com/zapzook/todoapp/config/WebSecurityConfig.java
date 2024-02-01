@@ -72,7 +72,7 @@ public class WebSecurityConfig {
 //                formLogin
 //                        .loginPage("/api/user/login-page").permitAll()
 //        );
-        http.formLogin(Customizer.withDefaults());
+//        http.formLogin(Customizer.withDefaults());
 
         // 필터 관리
         http.addFilterBefore(jwtAuthorizationFilter(), JwtAuthenticationFilter.class);
