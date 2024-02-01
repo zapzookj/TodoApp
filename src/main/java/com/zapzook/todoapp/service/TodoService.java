@@ -70,4 +70,15 @@ public class TodoService {
         todo.complete();
         return ("할일 카드 id : " + todo.getId() + "\n완료 여부 : True");
     }
+
+    public List<TodoResponseDto> searchTodo(String param, String username) {
+        List<Todo> todoList = todoRepository.findByTitleContaining(param);
+        List<TodoResponseDto> todoResponseDtoList = new ArrayList<>();
+        for (Todo todo : todoList) {
+            if(todo.getOpen() || todo.getUser().getUsername().equals(username)){
+                todoResponseDtoList.add(new TodoResponseDto(todo));
+            }
+        }
+        return todoResponseDtoList;
+    }
 }

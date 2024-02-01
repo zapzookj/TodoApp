@@ -22,6 +22,11 @@ public class TodoController {
         return todoService.getTodo(todoId, userDetails.getUser().getUsername());
     }
 
+    @GetMapping("/todo/search")
+    public List<TodoResponseDto> searchTodo(@RequestParam String param, @AuthenticationPrincipal UserDetailsImpl userDetails){
+        return todoService.searchTodo(param, userDetails.getUser().getUsername());
+    }
+
     @GetMapping("/todo")
     public List<TodoResponseDto> getTodoList(@AuthenticationPrincipal UserDetailsImpl userDetails){
         return todoService.getTodoList(userDetails.getUser().getUsername());
