@@ -1,14 +1,13 @@
 package com.zapzook.todoapp.controller;
 
 import com.zapzook.todoapp.dto.SignupRequestDto;
-import com.zapzook.todoapp.dto.SignupResponseDto;
+import com.zapzook.todoapp.dto.SuccessResponseDto;
 import com.zapzook.todoapp.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
@@ -43,7 +42,7 @@ public class UserController {
             return ResponseEntity.ok("회원가입 실패!");
         }
         userService.signup(requestDto);
-        SignupResponseDto responseDto = new SignupResponseDto("회원가입에 성공하셨습니다.", HttpStatus.OK.value());
+        SuccessResponseDto responseDto = new SuccessResponseDto("회원가입에 성공하셨습니다.", HttpStatus.OK.value());
         return ResponseEntity.ok(responseDto);
     }
 //    @PostMapping("/user/signup")
