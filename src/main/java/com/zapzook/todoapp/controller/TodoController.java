@@ -18,13 +18,13 @@ public class TodoController {
     private final TodoService todoService;
 
     @GetMapping("/todo/{todoId}")
-    public TodoResponseDto getTodo(@PathVariable Long todoId){
-        return todoService.getTodo(todoId);
+    public TodoResponseDto getTodo(@PathVariable Long todoId, @AuthenticationPrincipal UserDetailsImpl userDetails){
+        return todoService.getTodo(todoId, userDetails.getUser().getUsername());
     }
 
     @GetMapping("/todo")
-    public List<TodoResponseDto> getTodoList(){
-        return todoService.getTodoList();
+    public List<TodoResponseDto> getTodoList(@AuthenticationPrincipal UserDetailsImpl userDetails){
+        return todoService.getTodoList(userDetails.getUser().getUsername());
     }
 
     @PostMapping("/todo")

@@ -30,10 +30,13 @@ public class TodoService {
         return new TodoResponseDto(todo);
     }
 
-    public TodoResponseDto getTodo(Long todoId) {
+    public TodoResponseDto getTodo(Long todoId, String username) {
         Todo todo = util.findTodo(todoId);
         if(todo.getCompleted()){
             throw new IllegalArgumentException("해당 할일카드는 완료되어 숨김처리 되었습니다.");
+        }
+        if(!todo.getOpen() && !todo.getUser().getUsername().equals(username)){
+            throw new IllegalArgumentException("비공개된 할일카드입니다. 작성자만 조회가 가능합니다.");
         }
         List<Comment> commentList = commentRepository.findByTodoId(todoId);
         List<CommentResponseDto> commentResponseDtoList = new ArrayList<>();
@@ -43,9 +46,17 @@ public class TodoService {
         return new TodoResponseDto(todo, commentResponseDtoList);
     }
 
-    public List<TodoResponseDto> getTodoList() {
-        return todoRepository.findAllByCompletedFalseOrderByCreatedAtDesc().stream()
-                .map(TodoResponseDto::new).toList();
+    public List<TodoResponseDto> getTodoList(String username) {
+//        return todoRepository.findAllByCompletedFalseOrderByCreatedAtDesc().stream()
+//                .map(TodoResponseDto::new).toList();
+        List<Todo> todoList = todoRepository.findAllByCompletedFalseOrderByCreatedAtDesc();
+        List<TodoResponseDto> todoResponseDtoList = new ArrayList<>();
+        for (Todo todo : todoList) {
+            if(todo.getOpen() || todo.getUser().getUsername().equals(username)){
+                todoResponseDtoList.add(new TodoResponseDto(todo));
+            }
+        }
+        return todoResponseDtoList;
     }
     @Transactional
     public TodoResponseDto updateTodo(Long todoId, TodoRequestDto requestDto, User user) {
