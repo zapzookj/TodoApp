@@ -4,6 +4,7 @@ import com.zapzook.todoapp.jwt.JwtUtil;
 import com.zapzook.todoapp.security.JwtAuthenticationFilter;
 import com.zapzook.todoapp.security.JwtAuthorizationFilter;
 import com.zapzook.todoapp.security.UserDetailsServiceImpl;
+import com.zapzook.todoapp.util.Util;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
@@ -25,6 +26,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class WebSecurityConfig {
 
     private final JwtUtil jwtUtil;
+    private final Util util;
     private final UserDetailsServiceImpl userDetailsService;
     private final AuthenticationConfiguration authenticationConfiguration;
 
@@ -40,7 +42,7 @@ public class WebSecurityConfig {
 
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter() throws Exception {
-        JwtAuthenticationFilter filter = new JwtAuthenticationFilter(jwtUtil);
+        JwtAuthenticationFilter filter = new JwtAuthenticationFilter(jwtUtil, util);
         filter.setAuthenticationManager(authenticationManager(authenticationConfiguration));
         return filter;
     }

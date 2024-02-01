@@ -12,6 +12,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -35,33 +36,15 @@ public class UserController {
     @PostMapping("/user/signup")
     public ResponseEntity<Object> signup(@Valid @RequestBody SignupRequestDto requestDto, BindingResult bindingResult) {
         List<FieldError> fieldErrors = bindingResult.getFieldErrors();
+        List<ResultResponseDto> ResultList = new ArrayList<>();
+        ResultList.add(new ResultResponseDto("회원가입 실패!", 400));
         if (fieldErrors.size() > 0) {
             for (FieldError fieldError : bindingResult.getFieldErrors()) {
                 log.error(fieldError.getField() + " 필드 : " + fieldError.getDefaultMessage());
+                ResultList.add(new ResultResponseDto(fieldError.getField() + " 필드 : " + fieldError.getDefaultMessage(), 400));
             }
-            return ResponseEntity.ok("회원가입 실패!");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ResultList);
         }
-        userService.signup(requestDto);
-        ResultResponseDto responseDto = new ResultResponseDto("회원가입에 성공하셨습니다.", HttpStatus.OK.value());
-        return ResponseEntity.ok(responseDto);
+        return userService.signup(requestDto);
     }
-//    @PostMapping("/user/signup")
-//    public ResponseEntity<SignupResponseDto> signup(@Valid @RequestBody SignupRequestDto requestDto, BindingResult bindingResult) {
-//        if (bindingResult.hasErrors()) {
-//            // 회원가입 실패 응답 생성
-//            String errorMsg = bindingResult.getFieldErrors().stream()
-//                    .map(FieldError::getDefaultMessage)
-//                    .findFirst()
-//                    .orElse("Validation error");
-//            SignupResponseDto responseDto = new SignupResponseDto(errorMsg, HttpStatus.BAD_REQUEST.value());
-//            return new ResponseEntity<>(responseDto, HttpStatus.BAD_REQUEST);
-//        }
-//
-//        userService.signup(requestDto);
-//        // 회원가입 성공 응답 생성
-//        SignupResponseDto responseDto = new SignupResponseDto("회원가입에 성공하셨습니다.", HttpStatus.OK.value());
-//        return ResponseEntity.ok(responseDto);
-//    }
-
-
 }
