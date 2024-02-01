@@ -32,6 +32,9 @@ public class TodoService {
 
     public TodoResponseDto getTodo(Long todoId) {
         Todo todo = util.findTodo(todoId);
+        if(todo.getCompleted()){
+            throw new IllegalArgumentException("해당 할일카드는 완료되어 숨김처리 되었습니다.");
+        }
         List<Comment> commentList = commentRepository.findByTodoId(todoId);
         List<CommentResponseDto> commentResponseDtoList = new ArrayList<>();
         for (Comment comment : commentList) {
@@ -41,7 +44,7 @@ public class TodoService {
     }
 
     public List<TodoResponseDto> getTodoList() {
-        return todoRepository.findAllByOrderByCreatedAtDesc().stream()
+        return todoRepository.findAllByCompletedFalseOrderByCreatedAtDesc().stream()
                 .map(TodoResponseDto::new).toList();
     }
     @Transactional
