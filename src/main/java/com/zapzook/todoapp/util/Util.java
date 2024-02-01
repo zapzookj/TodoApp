@@ -31,7 +31,7 @@ public class Util {
     public Todo findTodo(Long todoId, User user){
         Todo todo = findTodo(todoId);
         if(!user.getUsername().equals(todo.getUser().getUsername())){
-            throw new IllegalArgumentException("username이 일치하지 않습니다!");
+            throw new IllegalArgumentException("작성자만 삭제/수정이 가능합니다.");
         }
         return todo;
     }
@@ -42,7 +42,7 @@ public class Util {
                 () -> new IllegalArgumentException("해당 댓글이 존재하지 않습니다.")
         );
         if(!user.getUsername().equals(comment.getUser().getUsername())){
-            throw new IllegalArgumentException("username이 일치하지 않습니다!");
+            throw new IllegalArgumentException("작성자만 삭제/수정이 가능합니다.");
         }
         return comment;
     }

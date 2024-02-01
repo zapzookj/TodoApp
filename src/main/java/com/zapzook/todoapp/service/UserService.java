@@ -19,30 +19,25 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public ResponseEntity<Object> signup(SignupRequestDto requestDto) {
+    public void signup(SignupRequestDto requestDto) {
         String username = requestDto.getUsername();
         String password = passwordEncoder.encode(requestDto.getPassword());
 
         // 회원 중복 확인
         Optional<User> checkUsername = userRepository.findByUsername(username);
         if (checkUsername.isPresent()) {
-            ResultResponseDto responseDto = new ResultResponseDto("중복된 사용자가 존재합니다.", 400);
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseDto);
+            throw new IllegalArgumentException("중복된 사용자가 존재합니다.");
         }
 
         // email 중복확인
         String email = requestDto.getEmail();
         Optional<User> checkEmail = userRepository.findByEmail(email);
         if (checkEmail.isPresent()) {
-            ResultResponseDto responseDto = new ResultResponseDto("중복된 Email 입니다.", 400);
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseDto);
+            throw new IllegalArgumentException("중복된 Email 입니다.");
         }
 
         // 사용자 등록
         User user = new User(username, password, email);
         userRepository.save(user);
-
-        ResultResponseDto responseDto = new ResultResponseDto("회원가입에 성공하셨습니다", 200);
-        return ResponseEntity.ok(responseDto);
     }
 }

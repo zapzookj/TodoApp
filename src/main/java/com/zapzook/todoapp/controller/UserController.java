@@ -45,6 +45,8 @@ public class UserController {
             }
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ResultList);
         }
-        return userService.signup(requestDto);
+        userService.signup(requestDto);
+        ResultResponseDto responseDto = new ResultResponseDto("회원가입에 성공하셨습니다", 200);
+        return ResponseEntity.ok(responseDto);
     }
 }
