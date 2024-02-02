@@ -66,7 +66,7 @@
 
 # API 명세서
 ![스크린샷 2024-02-02 163917](https://github.com/zapzookj/TodoApp/assets/154570825/66576163-9f2d-484c-914b-8e1714d6eac3)
-![스크린샷 2024-02-02 164020](https://github.com/zapzookj/TodoApp/assets/154570825/8e7ce4ac-0226-4d9c-9062-2f5385e4e110)
+![4321](https://github.com/zapzookj/TodoApp/assets/154570825/5a491228-7e40-45b7-8c3d-8a60cb76f818)
 ![스크린샷 2024-02-02 164047](https://github.com/zapzookj/TodoApp/assets/154570825/1acd2632-101b-4534-8fca-914cdaa4223c)
 
 
