@@ -70,7 +70,7 @@ public class WebSecurityConfig {
                         .requestMatchers("/v3/**", "/swagger-ui/**").permitAll()
                         .anyRequest().authenticated() // 그 외 모든 요청 인증처리
         );
-//        http.formLogin(Customizer.withDefaults());
+        http.formLogin(Customizer.withDefaults());
 
         // 필터 관리
         http.addFilterBefore(jwtAuthorizationFilter(), JwtAuthenticationFilter.class);

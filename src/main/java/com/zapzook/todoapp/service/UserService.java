@@ -1,12 +1,9 @@
 package com.zapzook.todoapp.service;
 
-import com.zapzook.todoapp.dto.ResultResponseDto;
 import com.zapzook.todoapp.dto.SignupRequestDto;
 import com.zapzook.todoapp.entity.User;
 import com.zapzook.todoapp.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 

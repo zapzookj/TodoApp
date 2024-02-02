@@ -8,7 +8,6 @@ import com.zapzook.todoapp.entity.Todo;
 import com.zapzook.todoapp.entity.User;
 import com.zapzook.todoapp.repository.CommentRepository;
 import com.zapzook.todoapp.repository.TodoRepository;
-import com.zapzook.todoapp.security.UserDetailsImpl;
 import com.zapzook.todoapp.util.Util;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

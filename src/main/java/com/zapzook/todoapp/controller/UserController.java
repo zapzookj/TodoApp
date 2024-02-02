@@ -25,16 +25,6 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
-
-//    @GetMapping("/user/login")
-//    public String loginPage() {
-//        return "login";
-//    }
-//
-//    @GetMapping("/user/signup")
-//    public String signupPage() {
-//        return "signup";
-//    }
     @Operation(summary = "Post member profile", description = "username, password, email을 입력해 회원가입을 한다.")
     @PostMapping("/user/signup")
     public ResponseEntity<Object> signup(@Valid @RequestBody SignupRequestDto requestDto, BindingResult bindingResult) {

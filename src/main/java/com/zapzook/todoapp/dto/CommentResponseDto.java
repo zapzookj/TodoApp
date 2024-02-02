@@ -18,8 +18,6 @@ public class CommentResponseDto {
     public String todoWriter;
 
     public CommentResponseDto(Comment comment){
-//        this.todoId = comment.getTodo().getId();
-//        this.todoWriter = comment.getTodo().getUser().getUsername();
         this.commentId = comment.getId();
         this.contents = comment.getContents();
         this.commentWriter = comment.getUser().getUsername();

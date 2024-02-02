@@ -1,8 +1,6 @@
 package com.zapzook.todoapp.dto;
 
-import com.zapzook.todoapp.entity.Comment;
 import com.zapzook.todoapp.entity.Todo;
-import com.zapzook.todoapp.entity.User;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
