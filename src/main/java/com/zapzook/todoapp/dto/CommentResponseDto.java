@@ -13,9 +13,7 @@ import lombok.Setter;
 public class CommentResponseDto {
     public Long commentId;
     public String contents;
-    public Long todoId;
     public String commentWriter;
-    public String todoWriter;
 
     public CommentResponseDto(Comment comment){
         this.commentId = comment.getId();
