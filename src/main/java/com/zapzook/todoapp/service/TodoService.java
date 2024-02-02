@@ -47,8 +47,6 @@ public class TodoService {
     }
 
     public List<TodoResponseDto> getTodoList(String username) {
-//        return todoRepository.findAllByCompletedFalseOrderByCreatedAtDesc().stream()
-//                .map(TodoResponseDto::new).toList();
         List<Todo> todoList = todoRepository.findAllByCompletedFalseOrderByCreatedAtDesc();
         List<TodoResponseDto> todoResponseDtoList = new ArrayList<>();
         for (Todo todo : todoList) {

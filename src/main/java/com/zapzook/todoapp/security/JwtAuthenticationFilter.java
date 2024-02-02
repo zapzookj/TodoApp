@@ -58,5 +58,4 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException{
         util.authResult(response, "로그인 실패! username과 password를 다시 확인해보세요.", 401);
     }
-
 }
