@@ -1,7 +1,5 @@
 package com.zapzook.todoapp.security;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.zapzook.todoapp.dto.ResultResponseDto;
 import com.zapzook.todoapp.entity.RefreshToken;
 import com.zapzook.todoapp.entity.User;
 import com.zapzook.todoapp.repository.RefreshTokenRepository;
@@ -18,12 +16,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 
 @Slf4j(topic = "JWT 검증 및 인가")
 public class JwtAuthorizationFilter extends OncePerRequestFilter {
@@ -39,7 +35,6 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         this.refreshTokenRepository = refreshTokenRepository;
         this.util = util;
     }
-//    @Transactional
     @Override
     protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain filterChain) throws ServletException, IOException {
 
@@ -52,7 +47,6 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                 util.authResult(res, "JWT 토큰이 유효하지 않습니다.", 400);
                 return;
             } else if (tokenStatus == 2) { // 만료된 토큰
-                // ExpiredJwtException 처리 로직
                 try {
                     Claims info = jwtUtil.getExpiredTokenClaims(tokenValue);
                     String username = info.getSubject();

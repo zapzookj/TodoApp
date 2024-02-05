@@ -21,10 +21,10 @@ public class JwtUtil {
     // Token 식별자
     public static final String BEARER_PREFIX = "Bearer ";
     // 토큰 만료시간
-    private final long ACCESS_TOKEN_TIME =  30 * 1000L; // 60분
+    private final long ACCESS_TOKEN_TIME =  60 * 60 * 1000L; // 60분
 
     // Refresh 토큰 만료시간
-    private final long REFRESH_TOKEN_TIME =  1 * 60 * 1000L;
+    private final long REFRESH_TOKEN_TIME =  12 * 60 * 60 * 1000L; // 12시간
 
     @Value("${jwt.secret.key}") // Base64 Encode 한 SecretKey
     private String secretKey;
@@ -56,7 +56,7 @@ public class JwtUtil {
 
         return Jwts.builder()
                 .setSubject(username)
-                .setIssuedAt(new Date())
+                .setIssuedAt(now)
                 .setExpiration(expiryDate)
                 .signWith(key, signatureAlgorithm)
                 .compact();
@@ -87,16 +87,6 @@ public class JwtUtil {
             return 2;
         }
         return 1;
-    }
-
-    public boolean validateTokenExpired(String token){
-        try{
-            Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
-            return true;
-        } catch (ExpiredJwtException e){
-            log.error("Expired JWT token, 만료된 JWT token 입니다.");
-        }
-        return false;
     }
 
     public Claims getExpiredTokenClaims(String token) {
