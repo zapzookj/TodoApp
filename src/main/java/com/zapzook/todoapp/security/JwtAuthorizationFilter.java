@@ -61,13 +61,10 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                     RefreshToken refreshToken = refreshTokenRepository.findByUserId(user.getId());
 
                     if (refreshToken != null && jwtUtil.validateToken(refreshToken.getToken()) == 0) {
-                        String newToken = jwtUtil.createToken(username).substring(7);
-//                        System.out.println(newToken + "\n\n\n\n\n\n\n\n");
-                        Claims newInfo = jwtUtil.getUserInfoFromToken(newToken);
-//                        res.addHeader(JwtUtil.AUTHORIZATION_HEADER, newToken);
-//                        util.authResult(res, "새로운 토큰을 헤더에 발급합니다.", 200);
-                        setAuthentication(newInfo.getSubject());
-//                        return;
+                        String newToken = jwtUtil.createToken(username);
+                        res.addHeader(JwtUtil.AUTHORIZATION_HEADER, newToken);
+                        util.authResult(res, "해당 Access 토큰은 만료되었습니다. 새로운 토큰을 헤더에 발급합니다.", 200);
+                        return;
                     } else {
                         util.authResult(res, "Access 토큰과 Refresh 토큰이 모두 만료되었습니다. 다시 로그인 해주세요.", 401);
                         return;
