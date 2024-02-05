@@ -2,6 +2,9 @@ package com.zapzook.todoapp.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zapzook.todoapp.dto.LoginRequestDto;
+import com.zapzook.todoapp.entity.RefreshToken;
+import com.zapzook.todoapp.entity.User;
+import com.zapzook.todoapp.repository.RefreshTokenRepository;
 import com.zapzook.todoapp.util.JwtUtil;
 import com.zapzook.todoapp.util.Util;
 import jakarta.servlet.FilterChain;
@@ -20,9 +23,12 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     private final JwtUtil jwtUtil;
     private final Util util;
 
-    public JwtAuthenticationFilter(JwtUtil jwtUtil, Util util) {
+    private final RefreshTokenRepository refreshTokenRepository;
+
+    public JwtAuthenticationFilter(JwtUtil jwtUtil, Util util, RefreshTokenRepository refreshTokenRepository) {
         this.jwtUtil = jwtUtil;
         this.util = util;
+        this.refreshTokenRepository = refreshTokenRepository;
         setFilterProcessesUrl("/api/user/login");
     }
 
@@ -47,9 +53,15 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException{
-        String username = ((UserDetailsImpl) authResult.getPrincipal()).getUsername();
+        UserDetailsImpl userDetails = ((UserDetailsImpl) authResult.getPrincipal());
+        String username = userDetails.getUsername();
         String token = jwtUtil.createToken(username);
         response.addHeader(JwtUtil.AUTHORIZATION_HEADER, token);
+
+        String refreshToken1 = jwtUtil.createRefreshToken(username);
+        User user = userDetails.getUser();
+        RefreshToken refreshToken = new RefreshToken(refreshToken1, user);
+        refreshTokenRepository.save(refreshToken);
 
         util.authResult(response, "로그인 성공! Header에 JWT 토큰을 반환합니다.", 200);
     }

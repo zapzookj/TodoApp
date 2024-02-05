@@ -1,5 +1,6 @@
 package com.zapzook.todoapp.config;
 
+import com.zapzook.todoapp.repository.RefreshTokenRepository;
 import com.zapzook.todoapp.util.JwtUtil;
 import com.zapzook.todoapp.security.JwtAuthenticationFilter;
 import com.zapzook.todoapp.security.JwtAuthorizationFilter;
@@ -29,6 +30,7 @@ public class WebSecurityConfig {
     private final Util util;
     private final UserDetailsServiceImpl userDetailsService;
     private final AuthenticationConfiguration authenticationConfiguration;
+    private final RefreshTokenRepository refreshTokenRepository;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -42,14 +44,14 @@ public class WebSecurityConfig {
 
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter() throws Exception {
-        JwtAuthenticationFilter filter = new JwtAuthenticationFilter(jwtUtil, util);
+        JwtAuthenticationFilter filter = new JwtAuthenticationFilter(jwtUtil, util, refreshTokenRepository);
         filter.setAuthenticationManager(authenticationManager(authenticationConfiguration));
         return filter;
     }
 
     @Bean
     public JwtAuthorizationFilter jwtAuthorizationFilter() {
-        return new JwtAuthorizationFilter(jwtUtil, userDetailsService);
+        return new JwtAuthorizationFilter(jwtUtil, userDetailsService, refreshTokenRepository, util);
     }
 
     @Bean
