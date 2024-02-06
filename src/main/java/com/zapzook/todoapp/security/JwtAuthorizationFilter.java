@@ -61,6 +61,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                         return;
                     } else {
                         util.authResult(res, "Access 토큰과 Refresh 토큰이 모두 만료되었습니다. 다시 로그인 해주세요.", 401);
+                        refreshTokenRepository.delete(refreshToken);
                         return;
                     }
                 } catch (Exception e) {
