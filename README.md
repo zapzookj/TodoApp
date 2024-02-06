@@ -60,6 +60,7 @@
 - [X] 할일카드를 작성자만 볼 수 있도록 비공개 하는 기능
 - [X] 할일카드 제목으로 검색하여 목록을 출력하는 기능
 - [X] 프로젝트에 swagger 적용
+- [X] AccessToken, RefreshToken 구현 (DB에서 구현)
 
 # API 명세서
 ![스크린샷 2024-02-02 163917](https://github.com/zapzookj/TodoApp/assets/154570825/66576163-9f2d-484c-914b-8e1714d6eac3)
