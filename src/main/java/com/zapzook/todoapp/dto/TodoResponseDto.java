@@ -20,6 +20,7 @@ public class TodoResponseDto {
     private String username;
     private Date createdAt;
     private Boolean completed;
+    private Boolean open;
     private List<CommentResponseDto> commentList;
 
     public TodoResponseDto(Todo todo){
@@ -29,6 +30,7 @@ public class TodoResponseDto {
         this.username = todo.getUser().getUsername();
         this.createdAt = todo.getCreatedAt();
         this.completed = todo.getCompleted();
+        this.open = todo.getOpen();
     }
     public TodoResponseDto(Todo todo, List<CommentResponseDto> commentList){
         this.id = todo.getId();
@@ -37,6 +39,7 @@ public class TodoResponseDto {
         this.username = todo.getUser().getUsername();
         this.createdAt = todo.getCreatedAt();
         this.completed = todo.getCompleted();
+        this.open = todo.getOpen();
         this.commentList = commentList;
     }
 }
