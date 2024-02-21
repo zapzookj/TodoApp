@@ -166,6 +166,43 @@ class TodoServiceTest {
         assertEquals("작성자만 삭제/수정이 가능합니다.", exception.getMessage());
     }
 
+    @Test
+    @DisplayName("할일 카드 완료 처리")
+    void test8(){
+        // given
+        given(util.findTodo(todo.getId(), user)).willReturn(todo);
+
+        // when
+        todoService.completeTodo(todo.getId(), user);
+
+        // assert
+        assertEquals(true, todo.getCompleted());
+    }
+
+    @Test
+    @DisplayName("할일 카드 검색") // 쿼리 메서드의 동작 검증은 여기선 할 수 없을듯
+    void test9(){
+        // given
+        String param = "Test";
+        Todo todo2 = new Todo(new TodoRequestDto("Test2", "test2", true), user);
+        Todo todo3 = new Todo(new TodoRequestDto("Test3", "test3", true), user);
+
+        User other = new User("other", "other", "other@email.com");
+        Todo publicTodoByOther = new Todo(new TodoRequestDto("Test4 By other", "test", true), other);
+        Todo privateTodoByOther = new Todo(new TodoRequestDto("Test5 By other", "test", false), other);
+
+        List<Todo> todos = Arrays.asList(todo2, todo3, publicTodoByOther, privateTodoByOther);
+        given(todoRepository.findByTitleContaining(param)).willReturn(todos);
+
+        // when
+        List<TodoResponseDto> result = todoService.searchTodo(param, user.getUsername());
+
+        // then
+        assertNotNull(result);
+        assertEquals(3, result.size());
+        assertFalse(result.stream().anyMatch(todo -> todo.getTitle().equals(privateTodoByOther.getTitle())));
+    }
+
 
 
 }
