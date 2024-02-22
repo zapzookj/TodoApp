@@ -63,7 +63,7 @@ class CommentRepositoryTest {
 
         // then
         assertThat(foundComments).isNotEmpty();
-        assertThat(foundComments.get(0).getContents()).isEqualTo("Test Comment");
+        assertThat(foundComments.get(0).getContents()).isEqualTo("contents");
         assertThat(foundComments.get(0).getUser()).isEqualTo(savedUser);
     }
 
