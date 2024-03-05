@@ -15,36 +15,37 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/todo")
+@RequestMapping("/api")
 @Tag(name = "Comment", description = "댓글 CUD 기능 수행")
 public class CommentController {
 
     private final CommentService commentService;
 
     @Operation(summary = "Post comment", description = "특정 할일카드에 댓글을 생성한다.")
-    @PostMapping("{todoId}/comment")
-    public CommentResponseDto createComment(@PathVariable Long todoId,
-                                            @RequestBody CommentRequestDto requestDto,
-                                            @AuthenticationPrincipal UserDetailsImpl userDetails){
-        return commentService.createComment(todoId, requestDto, userDetails.getUser());
+    @PostMapping("/todo/{todoId}/comment")
+    public ResponseEntity<ResultResponseDto> createComment(@PathVariable Long todoId,
+                                                           @RequestBody CommentRequestDto requestDto,
+                                                           @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        commentService.createComment(todoId, requestDto, userDetails.getUser());
+        return ResponseEntity.status(200).body(new ResultResponseDto("댓글 작성 성공", 200));
     }
 
     @Operation(summary = "Put comment", description = "특정 할일카드에 달린 특정 댓글을 수정한다")
-    @PutMapping("{todoId}/comment/{commentId}")
-    public CommentResponseDto updateComment(@PathVariable Long todoId,
-                                            @PathVariable Long commentId,
-                                            @RequestBody CommentRequestDto requestDto,
-                                            @AuthenticationPrincipal UserDetailsImpl userDetails){
-        return commentService.updateComment(todoId, commentId, requestDto, userDetails.getUser());
+    @PutMapping("/todo/{todoId}/comment/{commentId}")
+    public ResponseEntity<ResultResponseDto> updateComment(@PathVariable Long todoId,
+                                                           @PathVariable Long commentId,
+                                                           @RequestBody CommentRequestDto requestDto,
+                                                           @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        commentService.updateComment(todoId, commentId, requestDto, userDetails.getUser());
+        return ResponseEntity.status(200).body(new ResultResponseDto("댓글 수정 성공", 200));
     }
 
     @Operation(summary = "Delete comment", description = "특정 할일카드에 달린 특정 댓글을 삭제한다.")
-    @DeleteMapping("{todoId}/comment/{commentId}")
-    public ResponseEntity<Object> deleteComment(@PathVariable Long todoId,
-                                                @PathVariable Long commentId,
-                                                @AuthenticationPrincipal UserDetailsImpl userDetails){
+    @DeleteMapping("/todo/{todoId}/comment/{commentId}")
+    public ResponseEntity<ResultResponseDto> deleteComment(@PathVariable Long todoId,
+                                                           @PathVariable Long commentId,
+                                                           @AuthenticationPrincipal UserDetailsImpl userDetails) {
         commentService.deleteComment(todoId, commentId, userDetails.getUser());
-        ResultResponseDto responseDto = new ResultResponseDto("삭제 성공.", HttpStatus.OK.value());
-        return ResponseEntity.ok(responseDto);
+        return ResponseEntity.status(200).body(new ResultResponseDto("댓글 삭제 성공", 200));
     }
 }
