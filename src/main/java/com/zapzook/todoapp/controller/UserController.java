@@ -27,19 +27,8 @@ public class UserController {
     private final UserService userService;
     @Operation(summary = "Post member profile", description = "username, password, email을 입력해 회원가입을 한다.")
     @PostMapping("/user/signup")
-    public ResponseEntity<Object> signup(@Valid @RequestBody SignupRequestDto requestDto, BindingResult bindingResult) {
-        List<FieldError> fieldErrors = bindingResult.getFieldErrors();
-        if (fieldErrors.size() > 0) {
-            List<ResultResponseDto> ResultList = new ArrayList<>();
-            ResultList.add(new ResultResponseDto("회원가입 실패!", 400));
-            for (FieldError fieldError : bindingResult.getFieldErrors()) {
-                log.error(fieldError.getField() + " 필드 : " + fieldError.getDefaultMessage());
-                ResultList.add(new ResultResponseDto(fieldError.getField() + " 필드 : " + fieldError.getDefaultMessage(), 400));
-            }
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ResultList);
-        }
+    public ResponseEntity<ResultResponseDto> signup(@Valid @RequestBody SignupRequestDto requestDto) {
         userService.signup(requestDto);
-        ResultResponseDto responseDto = new ResultResponseDto("회원가입에 성공하셨습니다", 200);
-        return ResponseEntity.ok(responseDto);
+        return ResponseEntity.status(200).body(new ResultResponseDto("회원가입 성공", 200));
     }
 }
