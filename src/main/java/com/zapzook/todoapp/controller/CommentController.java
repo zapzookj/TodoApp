@@ -13,6 +13,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api")
@@ -20,6 +22,13 @@ import org.springframework.web.bind.annotation.*;
 public class CommentController {
 
     private final CommentService commentService;
+
+    @Operation(summary = "Get comment", description = "특정 할일카드에 달린 댓글을 조회한다.")
+    @GetMapping("/todo/{todoId}/comment")
+    public ResponseEntity<List<CommentResponseDto>> getComments(@PathVariable Long todoId) {
+        List<CommentResponseDto> commentResponseDtoList = commentService.getComments(todoId);
+        return ResponseEntity.status(200).body(commentResponseDtoList);
+    }
 
     @Operation(summary = "Post comment", description = "특정 할일카드에 댓글을 생성한다.")
     @PostMapping("/todo/{todoId}/comment")

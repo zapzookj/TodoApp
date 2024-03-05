@@ -11,6 +11,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class CommentService {
@@ -18,16 +20,20 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final Util util;
 
-    public CommentResponseDto createComment(Long todoId, CommentRequestDto requestDto, User user) {
+    public List<CommentResponseDto> getComments(Long todoId) {
+        util.findTodo(todoId);
+        return commentRepository.findByTodoId(todoId)
+                .stream().map(CommentResponseDto::new).toList();
+    }
+
+    public void createComment(Long todoId, CommentRequestDto requestDto, User user) {
         Todo todo = util.findTodo(todoId);
-        Comment comment = commentRepository.save(new Comment(requestDto, todo, user));
-        return new CommentResponseDto(comment);
+        commentRepository.save(new Comment(requestDto.getContents(), todo, user));
     }
     @Transactional
-    public CommentResponseDto updateComment(Long todoId, Long commentId, CommentRequestDto requestDto, User user) {
+    public void updateComment(Long todoId, Long commentId, CommentRequestDto requestDto, User user) {
         Comment comment = util.findComment(todoId, user, commentId);
-        comment.update(requestDto);
-        return new CommentResponseDto(comment);
+        comment.update(requestDto.getContents());
     }
 
     public void deleteComment(Long todoId, Long commentId, User user) {

@@ -26,13 +26,13 @@ public class Comment {
     @JoinColumn(name = "todo_id", nullable = false)
     private Todo todo;
 
-    public Comment(CommentRequestDto requestDto, Todo todo, User user){
-        this.contents = requestDto.getContents();
+    public Comment(String contents, Todo todo, User user){
+        this.contents = contents;
         this.todo = todo;
         this.user = user;
     }
 
-    public void update(CommentRequestDto requestDto) {
-        this.contents = requestDto.getContents();
+    public void update(String contents) {
+        this.contents = contents;
     }
 }

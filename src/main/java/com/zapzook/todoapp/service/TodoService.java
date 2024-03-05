@@ -21,7 +21,6 @@ import java.util.List;
 public class TodoService {
 
     private final TodoRepository todoRepository;
-    private final CommentRepository commentRepository;
     private final Util util;
     @Transactional
     public TodoResponseDto createTodo(TodoRequestDto requestDto, User user) {
@@ -37,12 +36,7 @@ public class TodoService {
         if(!todo.getOpen() && !todo.getUser().getUsername().equals(username)){
             throw new IllegalArgumentException("비공개된 할일카드입니다. 작성자만 조회가 가능합니다.");
         }
-        List<Comment> commentList = commentRepository.findByTodoId(todoId);
-        List<CommentResponseDto> commentResponseDtoList = new ArrayList<>();
-        for (Comment comment : commentList) {
-            commentResponseDtoList.add(new CommentResponseDto(comment));
-        }
-        return new TodoResponseDto(todo, commentResponseDtoList);
+        return new TodoResponseDto(todo);
     }
 
     public List<TodoResponseDto> getTodoList(String username) {
