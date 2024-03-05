@@ -1,5 +1,6 @@
 package com.zapzook.todoapp.repository;
 
+import com.zapzook.todoapp.dto.TodoResponseDto;
 import com.zapzook.todoapp.entity.Todo;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -9,4 +10,8 @@ public interface TodoRepository extends JpaRepository<Todo, Long> {
     List<Todo> findAllByCompletedFalseOrderByCreatedAtDesc();
 
     List<Todo> findByTitleContaining(String param);
+
+    List<Todo> findAllByCompletedFalseAndOpenTrueOrUserUsernameOrderByCreatedAtDesc(String username);
+
+    List<Todo> findByTitleContainingAndOpenTrueOrUserUsernameOrderByCreatedAtDesc(String param, String username);
 }

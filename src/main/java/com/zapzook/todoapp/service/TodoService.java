@@ -46,36 +46,22 @@ public class TodoService {
     }
 
     public List<TodoResponseDto> getTodoList(String username) {
-        List<Todo> todoList = todoRepository.findAllByCompletedFalseOrderByCreatedAtDesc();
-        List<TodoResponseDto> todoResponseDtoList = new ArrayList<>();
-        for (Todo todo : todoList) {
-            if(todo.getOpen() || todo.getUser().getUsername().equals(username)){
-                todoResponseDtoList.add(new TodoResponseDto(todo));
-            }
-        }
-        return todoResponseDtoList;
+        return todoRepository.findAllByCompletedFalseAndOpenTrueOrUserUsernameOrderByCreatedAtDesc(username)
+                .stream().map(TodoResponseDto::new).toList();
     }
     @Transactional
-    public TodoResponseDto updateTodo(Long todoId, TodoRequestDto requestDto, User user) {
+    public void updateTodo(Long todoId, TodoRequestDto requestDto, User user) {
         Todo todo = util.findTodo(todoId, user);
         todo.update(requestDto);
-        return new TodoResponseDto(todo);
     }
     @Transactional
-    public String completeTodo(Long todoId, User user) {
+    public void completeTodo(Long todoId, User user) {
         Todo todo = util.findTodo(todoId, user);
         todo.complete();
-        return ("할일 카드 id : " + todo.getId() + "\n완료 여부 : True");
     }
 
     public List<TodoResponseDto> searchTodo(String param, String username) {
-        List<Todo> todoList = todoRepository.findByTitleContaining(param);
-        List<TodoResponseDto> todoResponseDtoList = new ArrayList<>();
-        for (Todo todo : todoList) {
-            if(todo.getOpen() || todo.getUser().getUsername().equals(username)){
-                todoResponseDtoList.add(new TodoResponseDto(todo));
-            }
-        }
-        return todoResponseDtoList;
+        return todoRepository.findByTitleContainingAndOpenTrueOrUserUsernameOrderByCreatedAtDesc(param, username)
+                .stream().map(TodoResponseDto::new).toList();
     }
 }
