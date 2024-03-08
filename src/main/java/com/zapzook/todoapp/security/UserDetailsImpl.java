@@ -10,9 +10,22 @@ import java.util.Collections;
 public class UserDetailsImpl implements UserDetails {
 
     private final User user;
+    private final Long userId;
+    private final String username;
+    private final String email;
+
+    public UserDetailsImpl(Long userId, String username, String email) {
+        this.user = new User(userId, username, email);
+        this.userId = userId;
+        this.username = username;
+        this.email = email;
+    }
 
     public UserDetailsImpl(User user) {
         this.user = user;
+        this.userId = user.getId();
+        this.username = user.getUsername();
+        this.email = user.getEmail();
     }
 
     public User getUser() {
@@ -26,7 +39,7 @@ public class UserDetailsImpl implements UserDetails {
 
     @Override
     public String getUsername() {
-        return user.getUsername();
+        return this.username;
     }
 
     @Override

@@ -29,4 +29,11 @@ public class User {
         this.password = password;
         this.email = email;
     }
+
+    public User(Long userId, String username, String email) {
+        this.id = userId;
+        this.username = username;
+        this.email = email;
+        this.password = "test";
+    }
 }

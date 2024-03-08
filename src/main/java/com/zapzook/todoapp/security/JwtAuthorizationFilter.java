@@ -55,9 +55,9 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                     RefreshToken refreshToken = refreshTokenRepository.findByUserId(user.getId());
 
                     if (refreshToken != null && jwtUtil.validateToken(refreshToken.getToken()) == 0) {
-                        String newToken = jwtUtil.createToken(username);
-                        res.addHeader(JwtUtil.AUTHORIZATION_HEADER, newToken);
-                        util.authResult(res, "해당 Access 토큰은 만료되었습니다. 새로운 토큰을 헤더에 발급합니다.", 200);
+//                        String newToken = jwtUtil.createToken(username);
+//                        res.addHeader(JwtUtil.AUTHORIZATION_HEADER, newToken);
+//                        util.authResult(res, "해당 Access 토큰은 만료되었습니다. 새로운 토큰을 헤더에 발급합니다.", 200);
                         return;
                     } else {
                         util.authResult(res, "Access 토큰과 Refresh 토큰이 모두 만료되었습니다. 다시 로그인 해주세요.", 401);
@@ -70,7 +70,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                 }
             } else { // 유효한 토큰
                 Claims info = jwtUtil.getUserInfoFromToken(tokenValue);
-                setAuthentication(info.getSubject());
+                setAuthentication(info.getSubject(), info.get("userId", Long.class), info.get("email", String.class));
             }
         }
 
@@ -78,17 +78,17 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     }
 
     // 인증 처리
-    public void setAuthentication(String username) {
+    public void setAuthentication(String username, Long userId, String email) {
         SecurityContext context = SecurityContextHolder.createEmptyContext();
-        Authentication authentication = createAuthentication(username);
+        Authentication authentication = createAuthentication(username, userId, email);
         context.setAuthentication(authentication);
 
         SecurityContextHolder.setContext(context);
     }
 
     // 인증 객체 생성
-    private Authentication createAuthentication(String username) {
-        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+    private Authentication createAuthentication(String username, Long userId, String email) {
+        UserDetails userDetails = new UserDetailsImpl(userId, username, email);
         return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
     }
 }

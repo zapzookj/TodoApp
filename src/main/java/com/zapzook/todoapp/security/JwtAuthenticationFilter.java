@@ -54,13 +54,9 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException{
         UserDetailsImpl userDetails = ((UserDetailsImpl) authResult.getPrincipal());
-        String username = userDetails.getUsername();
-        String token = jwtUtil.createToken(username);
+        User user = userDetails.getUser();
+        String token = jwtUtil.createToken(user);
         response.addHeader(JwtUtil.AUTHORIZATION_HEADER, token);
-
-//        String refreshToken = jwtUtil.createRefreshToken(username);
-//        User user = userDetails.getUser();
-//        refreshTokenRepository.save(new RefreshToken(refreshToken, user));
 
         util.authResult(response, "로그인 성공! Header에 JWT 토큰을 반환합니다.", 200);
     }
