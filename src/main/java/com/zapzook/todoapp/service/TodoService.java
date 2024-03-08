@@ -6,6 +6,7 @@ import com.zapzook.todoapp.dto.TodoResponseDto;
 import com.zapzook.todoapp.entity.Comment;
 import com.zapzook.todoapp.entity.Todo;
 import com.zapzook.todoapp.entity.User;
+import com.zapzook.todoapp.exception.NotFoundException;
 import com.zapzook.todoapp.repository.CommentRepository;
 import com.zapzook.todoapp.repository.TodoRepository;
 import com.zapzook.todoapp.util.Util;
@@ -28,7 +29,7 @@ public class TodoService {
         return new TodoResponseDto(todo);
     }
 
-    public TodoResponseDto getTodo(Long todoId, String username) {
+    public TodoResponseDto getTodo(Long todoId, String username) throws NotFoundException {
         Todo todo = util.findTodo(todoId);
         if(todo.getCompleted()){
             throw new IllegalArgumentException("해당 할일카드는 완료되어 숨김처리 되었습니다.");
@@ -44,12 +45,12 @@ public class TodoService {
                 .stream().map(TodoResponseDto::new).toList();
     }
     @Transactional
-    public void updateTodo(Long todoId, TodoRequestDto requestDto, User user) {
+    public void updateTodo(Long todoId, TodoRequestDto requestDto, User user) throws NotFoundException {
         Todo todo = util.findTodo(todoId, user);
         todo.update(requestDto);
     }
     @Transactional
-    public void completeTodo(Long todoId, User user) {
+    public void completeTodo(Long todoId, User user) throws NotFoundException {
         Todo todo = util.findTodo(todoId, user);
         todo.complete();
     }
