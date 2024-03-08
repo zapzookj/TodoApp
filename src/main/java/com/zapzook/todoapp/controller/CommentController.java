@@ -3,6 +3,7 @@ package com.zapzook.todoapp.controller;
 import com.zapzook.todoapp.dto.CommentRequestDto;
 import com.zapzook.todoapp.dto.CommentResponseDto;
 import com.zapzook.todoapp.dto.ResultResponseDto;
+import com.zapzook.todoapp.exception.NotFoundException;
 import com.zapzook.todoapp.security.UserDetailsImpl;
 import com.zapzook.todoapp.service.CommentService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -25,7 +26,7 @@ public class CommentController {
 
     @Operation(summary = "Get comment", description = "특정 할일카드에 달린 댓글을 조회한다.")
     @GetMapping("/todo/{todoId}/comment")
-    public ResponseEntity<List<CommentResponseDto>> getComments(@PathVariable Long todoId) {
+    public ResponseEntity<List<CommentResponseDto>> getComments(@PathVariable Long todoId) throws NotFoundException {
         List<CommentResponseDto> commentResponseDtoList = commentService.getComments(todoId);
         return ResponseEntity.status(200).body(commentResponseDtoList);
     }
@@ -34,7 +35,7 @@ public class CommentController {
     @PostMapping("/todo/{todoId}/comment")
     public ResponseEntity<ResultResponseDto> createComment(@PathVariable Long todoId,
                                                            @RequestBody CommentRequestDto requestDto,
-                                                           @AuthenticationPrincipal UserDetailsImpl userDetails) {
+                                                           @AuthenticationPrincipal UserDetailsImpl userDetails) throws NotFoundException {
         commentService.createComment(todoId, requestDto, userDetails.getUser());
         return ResponseEntity.status(200).body(new ResultResponseDto("댓글 작성 성공", 200));
     }
@@ -44,7 +45,7 @@ public class CommentController {
     public ResponseEntity<ResultResponseDto> updateComment(@PathVariable Long todoId,
                                                            @PathVariable Long commentId,
                                                            @RequestBody CommentRequestDto requestDto,
-                                                           @AuthenticationPrincipal UserDetailsImpl userDetails) {
+                                                           @AuthenticationPrincipal UserDetailsImpl userDetails) throws NotFoundException {
         commentService.updateComment(todoId, commentId, requestDto, userDetails.getUser());
         return ResponseEntity.status(200).body(new ResultResponseDto("댓글 수정 성공", 200));
     }
@@ -53,7 +54,7 @@ public class CommentController {
     @DeleteMapping("/todo/{todoId}/comment/{commentId}")
     public ResponseEntity<ResultResponseDto> deleteComment(@PathVariable Long todoId,
                                                            @PathVariable Long commentId,
-                                                           @AuthenticationPrincipal UserDetailsImpl userDetails) {
+                                                           @AuthenticationPrincipal UserDetailsImpl userDetails) throws NotFoundException {
         commentService.deleteComment(todoId, commentId, userDetails.getUser());
         return ResponseEntity.status(200).body(new ResultResponseDto("댓글 삭제 성공", 200));
     }
