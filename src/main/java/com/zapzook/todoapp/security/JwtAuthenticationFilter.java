@@ -58,9 +58,9 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         String token = jwtUtil.createToken(username);
         response.addHeader(JwtUtil.AUTHORIZATION_HEADER, token);
 
-        String refreshToken = jwtUtil.createRefreshToken(username);
-        User user = userDetails.getUser();
-        refreshTokenRepository.save(new RefreshToken(refreshToken, user));
+//        String refreshToken = jwtUtil.createRefreshToken(username);
+//        User user = userDetails.getUser();
+//        refreshTokenRepository.save(new RefreshToken(refreshToken, user));
 
         util.authResult(response, "로그인 성공! Header에 JWT 토큰을 반환합니다.", 200);
     }
