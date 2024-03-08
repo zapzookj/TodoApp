@@ -5,6 +5,7 @@ import com.zapzook.todoapp.dto.ResultResponseDto;
 import com.zapzook.todoapp.entity.Comment;
 import com.zapzook.todoapp.entity.Todo;
 import com.zapzook.todoapp.entity.User;
+import com.zapzook.todoapp.exception.NotFoundException;
 import com.zapzook.todoapp.repository.CommentRepository;
 import com.zapzook.todoapp.repository.TodoRepository;
 import jakarta.servlet.http.HttpServletResponse;
@@ -22,13 +23,13 @@ public class Util {
     public final TodoRepository todoRepository;
     private final CommentRepository commentRepository;
 
-    public Todo findTodo(Long todoId){
+    public Todo findTodo(Long todoId) throws NotFoundException {
         return todoRepository.findById(todoId).orElseThrow(
-                () -> new IllegalArgumentException("해당 할일카드가 존재하지 않습니다.")
+                () -> new NotFoundException("해당 할일카드가 존재하지 않습니다.")
         );
     }
 
-    public Todo findTodo(Long todoId, User user){
+    public Todo findTodo(Long todoId, User user) throws NotFoundException {
         Todo todo = findTodo(todoId);
         if(!user.getUsername().equals(todo.getUser().getUsername())){
             throw new IllegalArgumentException("작성자만 삭제/수정이 가능합니다.");
@@ -36,10 +37,10 @@ public class Util {
         return todo;
     }
 
-    public Comment findComment(Long todoId, User user, Long commentId){
+    public Comment findComment(Long todoId, User user, Long commentId) throws NotFoundException {
         Todo todo = findTodo(todoId);
         Comment comment = commentRepository.findById(commentId).orElseThrow(
-                () -> new IllegalArgumentException("해당 댓글이 존재하지 않습니다.")
+                () -> new NotFoundException("해당 댓글이 존재하지 않습니다.")
         );
         if(!user.getUsername().equals(comment.getUser().getUsername())){
             throw new IllegalArgumentException("작성자만 삭제/수정이 가능합니다.");
