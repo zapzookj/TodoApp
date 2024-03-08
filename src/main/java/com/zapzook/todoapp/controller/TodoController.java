@@ -22,7 +22,7 @@ import java.util.List;
 public class TodoController {
 
     private final TodoService todoService;
-    @Operation(summary = "Get select todo", description = "특정 할일카드와 해당 할일카드에 달린 댓글들을 조회한다.")
+    @Operation(summary = "Get select todo", description = "특정 할일카드를 조회한다.")
     @GetMapping("/todo/{todoId}")
     public ResponseEntity<TodoResponseDto> getTodo(@PathVariable Long todoId, @AuthenticationPrincipal UserDetailsImpl userDetails) throws NotFoundException {
         TodoResponseDto todoResponseDto = todoService.getTodo(todoId, userDetails.getUser().getUsername());

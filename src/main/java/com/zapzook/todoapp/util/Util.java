@@ -8,6 +8,7 @@ import com.zapzook.todoapp.entity.User;
 import com.zapzook.todoapp.exception.NotFoundException;
 import com.zapzook.todoapp.repository.CommentRepository;
 import com.zapzook.todoapp.repository.TodoRepository;
+import com.zapzook.todoapp.repository.TodoRepositoryQueryImpl;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -22,11 +23,13 @@ import java.io.PrintWriter;
 public class Util {
     public final TodoRepository todoRepository;
     private final CommentRepository commentRepository;
+    public final TodoRepositoryQueryImpl todoRepositoryQuery;
 
     public Todo findTodo(Long todoId) throws NotFoundException {
-        return todoRepository.findById(todoId).orElseThrow(
-                () -> new NotFoundException("해당 할일카드가 존재하지 않습니다.")
-        );
+//        return todoRepository.findById(todoId).orElseThrow(
+//                () -> new NotFoundException("해당 할일카드가 존재하지 않습니다.")
+//        );
+        return todoRepositoryQuery.findByIdWithUser(todoId);
     }
 
     public Todo findTodo(Long todoId, User user) throws NotFoundException {
