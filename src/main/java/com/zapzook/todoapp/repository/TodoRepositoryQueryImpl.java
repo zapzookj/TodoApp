@@ -5,13 +5,9 @@ import com.zapzook.todoapp.entity.QTodo;
 import com.zapzook.todoapp.entity.Todo;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import lombok.RequiredArgsConstructor;
-import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public class TodoRepositoryQueryImpl {

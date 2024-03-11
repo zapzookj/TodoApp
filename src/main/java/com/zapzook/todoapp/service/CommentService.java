@@ -7,6 +7,7 @@ import com.zapzook.todoapp.entity.Todo;
 import com.zapzook.todoapp.entity.User;
 import com.zapzook.todoapp.exception.NotFoundException;
 import com.zapzook.todoapp.repository.CommentRepository;
+import com.zapzook.todoapp.repository.CommentRepositoryQueryImpl;
 import com.zapzook.todoapp.util.Util;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,11 +20,11 @@ import java.util.List;
 public class CommentService {
 
     private final CommentRepository commentRepository;
+    private final CommentRepositoryQueryImpl commentRepositoryQuery;
     private final Util util;
 
-    public List<CommentResponseDto> getComments(Long todoId) throws NotFoundException {
-        util.findTodo(todoId);
-        return commentRepository.findByTodoId(todoId)
+    public List<CommentResponseDto> getComments(Long todoId) {
+        return commentRepositoryQuery.findByTodoId(todoId)
                 .stream().map(CommentResponseDto::new).toList();
     }
 

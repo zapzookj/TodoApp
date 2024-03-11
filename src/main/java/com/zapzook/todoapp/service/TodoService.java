@@ -1,13 +1,10 @@
 package com.zapzook.todoapp.service;
 
-import com.zapzook.todoapp.dto.CommentResponseDto;
 import com.zapzook.todoapp.dto.TodoRequestDto;
 import com.zapzook.todoapp.dto.TodoResponseDto;
-import com.zapzook.todoapp.entity.Comment;
 import com.zapzook.todoapp.entity.Todo;
 import com.zapzook.todoapp.entity.User;
 import com.zapzook.todoapp.exception.NotFoundException;
-import com.zapzook.todoapp.repository.CommentRepository;
 import com.zapzook.todoapp.repository.TodoRepository;
 import com.zapzook.todoapp.repository.TodoRepositoryQueryImpl;
 import com.zapzook.todoapp.util.Util;
@@ -15,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -26,9 +22,8 @@ public class TodoService {
     private final TodoRepositoryQueryImpl todoRepositoryQuery;
     private final Util util;
     @Transactional
-    public TodoResponseDto createTodo(TodoRequestDto requestDto, User user) {
-        Todo todo = todoRepository.save(new Todo(requestDto, user));
-        return new TodoResponseDto(todo);
+    public void createTodo(TodoRequestDto requestDto, User user) {
+        todoRepository.save(new Todo(requestDto, user));
     }
 
     public TodoResponseDto getTodo(Long todoId, String username) throws NotFoundException {
@@ -57,8 +52,6 @@ public class TodoService {
     }
 
     public List<TodoResponseDto> searchTodo(String param, String username) {
-//        return todoRepository.findByTitleContainingAndOpenTrueOrUserUsernameOrderByCreatedAtDesc(param, username)
-//                .stream().map(TodoResponseDto::new).toList();
         return todoRepositoryQuery.findAllByParamAndUserName(param, username).stream().map(TodoResponseDto::new).toList();
     }
 }
