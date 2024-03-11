@@ -9,6 +9,7 @@ import com.zapzook.todoapp.entity.User;
 import com.zapzook.todoapp.exception.NotFoundException;
 import com.zapzook.todoapp.repository.CommentRepository;
 import com.zapzook.todoapp.repository.TodoRepository;
+import com.zapzook.todoapp.repository.TodoRepositoryQueryImpl;
 import com.zapzook.todoapp.util.Util;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,7 @@ import java.util.List;
 public class TodoService {
 
     private final TodoRepository todoRepository;
+    private final TodoRepositoryQueryImpl todoRepositoryQuery;
     private final Util util;
     @Transactional
     public TodoResponseDto createTodo(TodoRequestDto requestDto, User user) {
@@ -41,8 +43,12 @@ public class TodoService {
     }
 
     public List<TodoResponseDto> getTodoList(String username) {
-        return todoRepository.findAllByCompletedFalseAndOpenTrueOrUserUsernameOrderByCreatedAtDesc(username)
-                .stream().map(TodoResponseDto::new).toList();
+//        System.out.println("ㅎ2");
+//        List<TodoResponseDto> todoResponseDtoList = todoRepository.findAllByCompletedFalseAndOpenTrueOrUserUsernameOrderByCreatedAtDesc(username)
+//                .stream().map(TodoResponseDto::new).toList();
+//        System.out.println("ㅎ3");
+//        return todoResponseDtoList;
+        return todoRepositoryQuery.findAllByUserName(username).stream().map(TodoResponseDto::new).toList();
     }
     @Transactional
     public void updateTodo(Long todoId, TodoRequestDto requestDto, User user) throws NotFoundException {
@@ -56,7 +62,8 @@ public class TodoService {
     }
 
     public List<TodoResponseDto> searchTodo(String param, String username) {
-        return todoRepository.findByTitleContainingAndOpenTrueOrUserUsernameOrderByCreatedAtDesc(param, username)
-                .stream().map(TodoResponseDto::new).toList();
+//        return todoRepository.findByTitleContainingAndOpenTrueOrUserUsernameOrderByCreatedAtDesc(param, username)
+//                .stream().map(TodoResponseDto::new).toList();
+        return todoRepositoryQuery.findAllByUserName(username).stream().map(TodoResponseDto::new).toList();
     }
 }
