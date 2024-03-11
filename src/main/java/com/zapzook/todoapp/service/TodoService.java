@@ -43,11 +43,6 @@ public class TodoService {
     }
 
     public List<TodoResponseDto> getTodoList(String username) {
-//        System.out.println("ㅎ2");
-//        List<TodoResponseDto> todoResponseDtoList = todoRepository.findAllByCompletedFalseAndOpenTrueOrUserUsernameOrderByCreatedAtDesc(username)
-//                .stream().map(TodoResponseDto::new).toList();
-//        System.out.println("ㅎ3");
-//        return todoResponseDtoList;
         return todoRepositoryQuery.findAllByUserName(username).stream().map(TodoResponseDto::new).toList();
     }
     @Transactional
@@ -64,6 +59,6 @@ public class TodoService {
     public List<TodoResponseDto> searchTodo(String param, String username) {
 //        return todoRepository.findByTitleContainingAndOpenTrueOrUserUsernameOrderByCreatedAtDesc(param, username)
 //                .stream().map(TodoResponseDto::new).toList();
-        return todoRepositoryQuery.findAllByUserName(username).stream().map(TodoResponseDto::new).toList();
+        return todoRepositoryQuery.findAllByParamAndUserName(param, username).stream().map(TodoResponseDto::new).toList();
     }
 }

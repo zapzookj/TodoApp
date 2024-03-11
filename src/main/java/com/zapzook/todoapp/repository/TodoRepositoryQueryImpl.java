@@ -34,7 +34,7 @@ public class TodoRepositoryQueryImpl {
                 .where(todo.id.eq(todoId))
                 .fetchOne();
     }
-    @EntityGraph(attributePaths = {"User"})
+
     public List<Todo> findAllByUserName(String username) {
         QTodo todo = QTodo.todo;
 
@@ -42,6 +42,17 @@ public class TodoRepositoryQueryImpl {
                 .selectFrom(todo)
                 .leftJoin(todo.user).fetchJoin()
                 .where(todo.completed.eq(false).and(todo.open.eq(true).or(todo.user.username.eq(username))))
+                .orderBy(todo.createdAt.desc())
+                .fetch();
+    }
+
+    public List<Todo> findAllByParamAndUserName(String param, String username) {
+        QTodo todo = QTodo.todo;
+
+        return qf
+                .selectFrom(todo)
+                .leftJoin(todo.user).fetchJoin()
+                .where(todo.title.contains(param).and(todo.open.isTrue().and(todo.completed.isFalse().or(todo.user.username.eq(username)))))
                 .orderBy(todo.createdAt.desc())
                 .fetch();
     }
