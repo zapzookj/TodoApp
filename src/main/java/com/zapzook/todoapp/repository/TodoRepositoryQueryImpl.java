@@ -2,17 +2,17 @@ package com.zapzook.todoapp.repository;
 
 import com.querydsl.core.types.dsl.Wildcard;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import com.zapzook.todoapp.entity.QTodo;
 import com.zapzook.todoapp.entity.Todo;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.criteria.CriteriaBuilder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+
+import static com.zapzook.todoapp.entity.QTodo.todo;
 
 @Repository
 public class TodoRepositoryQueryImpl {
@@ -27,8 +27,6 @@ public class TodoRepositoryQueryImpl {
     }
 
     public Todo findByIdWithUser(Long todoId) {
-        QTodo todo = QTodo.todo;
-
         return qf
                 .selectFrom(todo)
                 .leftJoin(todo.user).fetchJoin()
@@ -36,9 +34,15 @@ public class TodoRepositoryQueryImpl {
                 .fetchOne();
     }
 
-    public Page<Todo> findAllByUserName(String username, Pageable pageable) {
-        QTodo todo = QTodo.todo;
+    public List<Todo> findAllWithUser(String username) {
+        return qf
+                .selectFrom(todo)
+                .leftJoin(todo.user).fetchJoin()
+                .where(todo.user.username.eq(username))
+                .fetch();
+    }
 
+    public Page<Todo> findAllByUserName(String username, Pageable pageable) {
         var query = qf
                 .selectFrom(todo)
                 .leftJoin(todo.user).fetchJoin()
@@ -53,7 +57,7 @@ public class TodoRepositoryQueryImpl {
 
         var todos = query.fetch();
 
-        long totalSize = qf
+        var totalSize = qf
                 .select(Wildcard.count)
                 .from(todo)
                 .leftJoin(todo.user)
@@ -66,8 +70,6 @@ public class TodoRepositoryQueryImpl {
     }
 
     public Page<Todo> findAllByParamAndUserName(String param, String username, Pageable pageable) {
-        QTodo todo = QTodo.todo;
-
         var query = qf
                 .selectFrom(todo)
                 .leftJoin(todo.user).fetchJoin()

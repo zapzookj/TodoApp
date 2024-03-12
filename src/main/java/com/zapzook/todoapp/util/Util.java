@@ -25,14 +25,11 @@ public class Util {
     private final CommentRepository commentRepository;
     public final TodoRepositoryQueryImpl todoRepositoryQuery;
 
-    public Todo findTodo(Long todoId) throws NotFoundException {
-//        return todoRepository.findById(todoId).orElseThrow(
-//                () -> new NotFoundException("해당 할일카드가 존재하지 않습니다.")
-//        );
+    public Todo findTodo(Long todoId) {
         return todoRepositoryQuery.findByIdWithUser(todoId);
     }
 
-    public Todo findTodo(Long todoId, User user) throws NotFoundException {
+    public Todo findTodo(Long todoId, User user) {
         Todo todo = findTodo(todoId);
         if(!user.getUsername().equals(todo.getUser().getUsername())){
             throw new IllegalArgumentException("작성자만 삭제/수정이 가능합니다.");

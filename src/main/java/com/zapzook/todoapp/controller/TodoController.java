@@ -10,7 +10,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -27,9 +26,16 @@ public class TodoController {
     @Operation(summary = "Get select todo", description = "특정 할일카드를 조회한다.")
     @GetMapping("/todo/{todoId}")
     public ResponseEntity<TodoResponseDto> getTodo(@PathVariable Long todoId,
-                                                   @AuthenticationPrincipal UserDetailsImpl userDetails) throws NotFoundException {
+                                                   @AuthenticationPrincipal UserDetailsImpl userDetails) {
         TodoResponseDto todoResponseDto = todoService.getTodo(todoId, userDetails.getUser().getUsername());
         return ResponseEntity.status(200).body(todoResponseDto);
+    }
+
+    @Operation(summary = "Get my todoList", description = "본인이 작성한 할일카드들을 조회한다.")
+    @GetMapping("/my-todos")
+    public ResponseEntity<List<TodoResponseDto>> getTodoDetails(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        List<TodoResponseDto> todoResponseDtoList = todoService.getMyTodos(userDetails.getUser().getUsername());
+        return ResponseEntity.status(200).body(todoResponseDtoList);
     }
 
     @Operation(summary = "Get searched todo", description = "RequestParam 형식으로 제목에 특정 키워드(param)가 포함된 할일카드들을 조회한다.")
@@ -39,7 +45,7 @@ public class TodoController {
                                                             @RequestParam int size,
                                                             @RequestParam String sortBy,
                                                             @RequestParam boolean isAsc,
-                                                            @AuthenticationPrincipal UserDetailsImpl userDetails){
+                                                            @AuthenticationPrincipal UserDetailsImpl userDetails) {
         Page<TodoResponseDto> todoResponseDtoList = todoService.searchTodo(param, userDetails.getUser().getUsername()
         , page-1, size, sortBy, isAsc);
         return ResponseEntity.status(200).body(todoResponseDtoList);
@@ -51,7 +57,7 @@ public class TodoController {
                                                              @RequestParam int size,
                                                              @RequestParam String sortBy,
                                                              @RequestParam boolean isAsc,
-                                                             @AuthenticationPrincipal UserDetailsImpl userDetails){
+                                                             @AuthenticationPrincipal UserDetailsImpl userDetails) {
         Page<TodoResponseDto> todoResponseDtoList = todoService.getTodoList(userDetails.getUser().getUsername()
         , page -1, size, sortBy, isAsc);
         return ResponseEntity.status(200).body(todoResponseDtoList);
@@ -59,22 +65,25 @@ public class TodoController {
 
     @Operation(summary = "Post todo", description = "새로운 할일카드를 생성한다.")
     @PostMapping("/todo")
-    public ResponseEntity<ResultResponseDto> createTodo(@RequestBody TodoRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails){
+    public ResponseEntity<ResultResponseDto> createTodo(@RequestBody TodoRequestDto requestDto,
+                                                        @AuthenticationPrincipal UserDetailsImpl userDetails) {
         todoService.createTodo(requestDto, userDetails.getUser());
         return ResponseEntity.status(200).body(new ResultResponseDto("할일 카드 생성 성공", 200));
     }
 
     @Operation(summary = "Post select todo", description = "특정 할일카드를 완료처리한다(작성자만 가능).")
     @PostMapping("/todo/complete/{todoId}")
-    public ResponseEntity<ResultResponseDto> completeTodo(@PathVariable Long todoId, @AuthenticationPrincipal UserDetailsImpl userDetails) throws NotFoundException {
+    public ResponseEntity<ResultResponseDto> completeTodo(@PathVariable Long todoId,
+                                                          @AuthenticationPrincipal UserDetailsImpl userDetails) {
         todoService.completeTodo(todoId, userDetails.getUser());
         return ResponseEntity.status(200).body(new ResultResponseDto("할일 카드 완료 처리 성공", 200));
     }
 
     @Operation(summary = "Put select todo", description = "특정 할일카드의 내용을 수정한다(작성자만 가능).")
     @PutMapping("/todo/{todoId}")
-    public ResponseEntity<ResultResponseDto> updateTodo(@PathVariable Long todoId, @RequestBody TodoRequestDto requestDto,
-                                      @AuthenticationPrincipal UserDetailsImpl userDetails) throws NotFoundException {
+    public ResponseEntity<ResultResponseDto> updateTodo(@PathVariable Long todoId,
+                                                        @RequestBody TodoRequestDto requestDto,
+                                                        @AuthenticationPrincipal UserDetailsImpl userDetails) {
         todoService.updateTodo(todoId, requestDto, userDetails.getUser());
         return ResponseEntity.status(200).body(new ResultResponseDto("할일 카드 수정 성공", 200));
     }
