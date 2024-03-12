@@ -1,8 +1,6 @@
 package com.zapzook.todoapp.security;
 
-import com.zapzook.todoapp.entity.RefreshToken;
-import com.zapzook.todoapp.entity.User;
-import com.zapzook.todoapp.repository.RefreshTokenRepository;
+import com.zapzook.todoapp.repository.RefreshTokenRedisRepository;
 import com.zapzook.todoapp.util.JwtUtil;
 import com.zapzook.todoapp.util.Util;
 import io.jsonwebtoken.Claims;
@@ -25,15 +23,13 @@ import java.io.IOException;
 public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
-    private final UserDetailsServiceImpl userDetailsService;
-    private final RefreshTokenRepository refreshTokenRepository;
     private final Util util;
+    private final RefreshTokenRedisRepository refreshTokenRedisRepository;
 
-    public JwtAuthorizationFilter(JwtUtil jwtUtil, UserDetailsServiceImpl userDetailsService, RefreshTokenRepository refreshTokenRepository, Util util) {
+    public JwtAuthorizationFilter(JwtUtil jwtUtil, Util util, RefreshTokenRedisRepository refreshTokenRedisRepository) {
         this.jwtUtil = jwtUtil;
-        this.userDetailsService = userDetailsService;
-        this.refreshTokenRepository = refreshTokenRepository;
         this.util = util;
+        this.refreshTokenRedisRepository = refreshTokenRedisRepository;
     }
     @Override
     protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain filterChain) throws ServletException, IOException {
@@ -50,18 +46,15 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                 try {
                     Claims info = jwtUtil.getExpiredTokenClaims(tokenValue);
                     String username = info.getSubject();
-                    UserDetailsImpl userDetails = (UserDetailsImpl) userDetailsService.loadUserByUsername(username);
-                    User user = userDetails.getUser();
-                    RefreshToken refreshToken = refreshTokenRepository.findByUserId(user.getId());
-
-                    if (refreshToken != null && jwtUtil.validateToken(refreshToken.getToken()) == 0) {
-//                        String newToken = jwtUtil.createToken(username);
-//                        res.addHeader(JwtUtil.AUTHORIZATION_HEADER, newToken);
-//                        util.authResult(res, "해당 Access 토큰은 만료되었습니다. 새로운 토큰을 헤더에 발급합니다.", 200);
+                    Long userId = info.get("userId", Long.class);
+                    String email = info.get("email", String.class);
+                    if(refreshTokenRedisRepository.existsByKey(username)) {
+                        String newToken = jwtUtil.createToken(username, userId, email);
+                        res.addHeader(JwtUtil.AUTHORIZATION_HEADER, newToken);
+                        util.authResult(res, "Access 토큰이 만료되었습니다. 새로운 토큰을 헤더에 발급합니다.", 200);
                         return;
                     } else {
                         util.authResult(res, "Access 토큰과 Refresh 토큰이 모두 만료되었습니다. 다시 로그인 해주세요.", 401);
-                        refreshTokenRepository.delete(refreshToken);
                         return;
                     }
                 } catch (Exception e) {

@@ -3,7 +3,6 @@ package com.zapzook.todoapp.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zapzook.todoapp.config.WebSecurityConfig;
 import com.zapzook.todoapp.dto.SignupRequestDto;
-import com.zapzook.todoapp.repository.RefreshTokenRepository;
 import com.zapzook.todoapp.security.UserDetailsServiceImpl;
 import com.zapzook.todoapp.service.UserService;
 import com.zapzook.todoapp.util.JwtUtil;

@@ -1,10 +1,9 @@
 package com.zapzook.todoapp.config;
 
-import com.zapzook.todoapp.repository.RefreshTokenRepository;
-import com.zapzook.todoapp.util.JwtUtil;
+import com.zapzook.todoapp.repository.RefreshTokenRedisRepository;
 import com.zapzook.todoapp.security.JwtAuthenticationFilter;
 import com.zapzook.todoapp.security.JwtAuthorizationFilter;
-import com.zapzook.todoapp.security.UserDetailsServiceImpl;
+import com.zapzook.todoapp.util.JwtUtil;
 import com.zapzook.todoapp.util.Util;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
@@ -28,9 +27,8 @@ public class WebSecurityConfig {
 
     private final JwtUtil jwtUtil;
     private final Util util;
-    private final UserDetailsServiceImpl userDetailsService;
     private final AuthenticationConfiguration authenticationConfiguration;
-    private final RefreshTokenRepository refreshTokenRepository;
+    private final RefreshTokenRedisRepository refreshTokenRedisRepository;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -44,14 +42,14 @@ public class WebSecurityConfig {
 
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter() throws Exception {
-        JwtAuthenticationFilter filter = new JwtAuthenticationFilter(jwtUtil, util, refreshTokenRepository);
+        JwtAuthenticationFilter filter = new JwtAuthenticationFilter(jwtUtil, util, refreshTokenRedisRepository);
         filter.setAuthenticationManager(authenticationManager(authenticationConfiguration));
         return filter;
     }
 
     @Bean
     public JwtAuthorizationFilter jwtAuthorizationFilter() {
-        return new JwtAuthorizationFilter(jwtUtil, userDetailsService, refreshTokenRepository, util);
+        return new JwtAuthorizationFilter(jwtUtil, util, refreshTokenRedisRepository);
     }
 
     @Bean
