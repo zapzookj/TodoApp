@@ -10,6 +10,10 @@ import com.zapzook.todoapp.repository.CommentRepository;
 import com.zapzook.todoapp.repository.CommentRepositoryQueryImpl;
 import com.zapzook.todoapp.util.Util;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,9 +27,12 @@ public class CommentService {
     private final CommentRepositoryQueryImpl commentRepositoryQuery;
     private final Util util;
 
-    public List<CommentResponseDto> getComments(Long todoId) {
-        return commentRepositoryQuery.findByTodoId(todoId)
-                .stream().map(CommentResponseDto::new).toList();
+    public Page<CommentResponseDto> getComments(Long todoId, int page, int size, String sortBy, boolean isAsc) {
+        Sort.Direction direction = isAsc ? Sort.Direction.ASC : Sort.Direction.DESC;
+        Sort sort = Sort.by(direction, sortBy);
+        Pageable pageable = PageRequest.of(page, size, sort);
+        return commentRepositoryQuery.findByTodoId(todoId, pageable)
+                .map(CommentResponseDto::new);
     }
 
     public void createComment(Long todoId, CommentRequestDto requestDto, User user) throws NotFoundException {

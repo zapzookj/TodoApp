@@ -9,6 +9,7 @@ import com.zapzook.todoapp.service.CommentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -26,8 +27,13 @@ public class CommentController {
 
     @Operation(summary = "Get comment", description = "특정 할일카드에 달린 댓글을 조회한다.")
     @GetMapping("/todo/{todoId}/comment")
-    public ResponseEntity<List<CommentResponseDto>> getComments(@PathVariable Long todoId) throws NotFoundException {
-        List<CommentResponseDto> commentResponseDtoList = commentService.getComments(todoId);
+    public ResponseEntity<Page<CommentResponseDto>> getComments(@PathVariable Long todoId,
+                                                                @RequestParam int page,
+                                                                @RequestParam int size,
+                                                                @RequestParam String sortBy,
+                                                                @RequestParam boolean isAsc) {
+        Page<CommentResponseDto> commentResponseDtoList = commentService.getComments(
+                todoId, page, size, sortBy, isAsc);
         return ResponseEntity.status(200).body(commentResponseDtoList);
     }
 

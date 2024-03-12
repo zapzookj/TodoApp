@@ -1,10 +1,15 @@
 package com.zapzook.todoapp.repository;
 
+import com.querydsl.core.types.dsl.Wildcard;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.zapzook.todoapp.entity.QTodo;
 import com.zapzook.todoapp.entity.Todo;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -31,25 +36,64 @@ public class TodoRepositoryQueryImpl {
                 .fetchOne();
     }
 
-    public List<Todo> findAllByUserName(String username) {
+    public Page<Todo> findAllByUserName(String username, Pageable pageable) {
         QTodo todo = QTodo.todo;
 
-        return qf
+        var query = qf
                 .selectFrom(todo)
                 .leftJoin(todo.user).fetchJoin()
-                .where(todo.completed.eq(false).and(todo.open.eq(true).or(todo.user.username.eq(username))))
-                .orderBy(todo.createdAt.desc())
-                .fetch();
+                .where(todo.completed.eq(false)
+                        .and(todo.open.eq(true)
+                                .or(todo.user.username.eq(username))));
+
+        query.orderBy(todo.createdAt.desc());
+
+        query.offset(pageable.getOffset())
+                .limit(pageable.getPageSize());
+
+        var todos = query.fetch();
+
+        long totalSize = qf
+                .select(Wildcard.count)
+                .from(todo)
+                .leftJoin(todo.user)
+                .where(todo.completed.eq(false)
+                        .and(todo.open.eq(true)
+                                .or(todo.user.username.eq(username))))
+                .fetch().get(0);
+
+        return PageableExecutionUtils.getPage(todos, pageable, () -> totalSize);
     }
 
-    public List<Todo> findAllByParamAndUserName(String param, String username) {
+    public Page<Todo> findAllByParamAndUserName(String param, String username, Pageable pageable) {
         QTodo todo = QTodo.todo;
 
-        return qf
+        var query = qf
                 .selectFrom(todo)
                 .leftJoin(todo.user).fetchJoin()
-                .where(todo.title.contains(param).and(todo.open.isTrue().and(todo.completed.isFalse().or(todo.user.username.eq(username)))))
-                .orderBy(todo.createdAt.desc())
-                .fetch();
+                .where(
+                        todo.title.contains(param)
+                                .and(todo.open.isTrue()
+                                        .and(todo.completed.isFalse()
+                                                .or(todo.user.username.eq(username)))));
+        query.orderBy(todo.createdAt.desc());
+
+        query.offset(pageable.getOffset())
+                .limit(pageable.getPageSize());
+
+        var todos = query.fetch();
+
+        long totalSize = qf
+                .select(Wildcard.count)
+                .from(todo)
+                .leftJoin(todo.user)
+                .where(
+                        todo.title.contains(param)
+                                .and(todo.open.isTrue().
+                                        and(todo.completed.isFalse().
+                                                or(todo.user.username.eq(username)))))
+                .fetch().get(0);
+
+        return PageableExecutionUtils.getPage(todos, pageable, () -> totalSize);
     }
 }

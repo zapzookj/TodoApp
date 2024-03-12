@@ -9,6 +9,10 @@ import com.zapzook.todoapp.repository.TodoRepository;
 import com.zapzook.todoapp.repository.TodoRepositoryQueryImpl;
 import com.zapzook.todoapp.util.Util;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,8 +41,9 @@ public class TodoService {
         return new TodoResponseDto(todo);
     }
 
-    public List<TodoResponseDto> getTodoList(String username) {
-        return todoRepositoryQuery.findAllByUserName(username).stream().map(TodoResponseDto::new).toList();
+    public Page<TodoResponseDto> getTodoList(String username, int page, int size, String sortBy, boolean isAsc) {
+        Pageable pageable = setPageable(page, size, sortBy, isAsc);
+        return todoRepositoryQuery.findAllByUserName(username, pageable).map(TodoResponseDto::new);
     }
     @Transactional
     public void updateTodo(Long todoId, TodoRequestDto requestDto, User user) throws NotFoundException {
@@ -51,7 +56,14 @@ public class TodoService {
         todo.complete();
     }
 
-    public List<TodoResponseDto> searchTodo(String param, String username) {
-        return todoRepositoryQuery.findAllByParamAndUserName(param, username).stream().map(TodoResponseDto::new).toList();
+    public Page<TodoResponseDto> searchTodo(String param, String username, int page, int size, String sortBy, boolean isAsc) {
+        Pageable pageable = setPageable(page, size, sortBy, isAsc);
+        return todoRepositoryQuery.findAllByParamAndUserName(param, username, pageable).map(TodoResponseDto::new);
+    }
+
+    public Pageable setPageable(int page, int size, String sortBy, boolean isAsc) {
+        Sort.Direction direction = isAsc ? Sort.Direction.ASC : Sort.Direction.DESC;
+        Sort sort = Sort.by(direction, sortBy);
+        return PageRequest.of(page, size, sort);
     }
 }

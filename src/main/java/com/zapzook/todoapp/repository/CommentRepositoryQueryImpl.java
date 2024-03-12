@@ -1,10 +1,14 @@
 package com.zapzook.todoapp.repository;
 
+import com.querydsl.core.types.dsl.Wildcard;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.zapzook.todoapp.entity.Comment;
 import com.zapzook.todoapp.entity.QComment;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -20,13 +24,26 @@ public class CommentRepositoryQueryImpl {
         this.qf = new JPAQueryFactory(em);
     }
 
-    public List<Comment> findByTodoId(Long todoId) {
+    public Page<Comment> findByTodoId(Long todoId, Pageable pageable) {
         QComment comment = QComment.comment;
 
-        return qf
+        var query = qf
                 .selectFrom(comment)
                 .leftJoin(comment.todo).fetchJoin()
+                .where(comment.todo.id.eq(todoId));
+
+        query.offset(pageable.getOffset())
+                .limit(pageable.getPageSize());
+
+        var comments = query.fetch();
+
+        long totalSize = qf
+                .select(Wildcard.count)
+                .from(comment)
+                .leftJoin(comment.todo)
                 .where(comment.todo.id.eq(todoId))
-                .fetch();
+                .fetch().get(0);
+
+        return PageableExecutionUtils.getPage(comments, pageable, () -> totalSize);
     }
 }

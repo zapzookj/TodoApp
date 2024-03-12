@@ -9,6 +9,8 @@ import com.zapzook.todoapp.service.TodoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -24,22 +26,34 @@ public class TodoController {
     private final TodoService todoService;
     @Operation(summary = "Get select todo", description = "특정 할일카드를 조회한다.")
     @GetMapping("/todo/{todoId}")
-    public ResponseEntity<TodoResponseDto> getTodo(@PathVariable Long todoId, @AuthenticationPrincipal UserDetailsImpl userDetails) throws NotFoundException {
+    public ResponseEntity<TodoResponseDto> getTodo(@PathVariable Long todoId,
+                                                   @AuthenticationPrincipal UserDetailsImpl userDetails) throws NotFoundException {
         TodoResponseDto todoResponseDto = todoService.getTodo(todoId, userDetails.getUser().getUsername());
         return ResponseEntity.status(200).body(todoResponseDto);
     }
 
     @Operation(summary = "Get searched todo", description = "RequestParam 형식으로 제목에 특정 키워드(param)가 포함된 할일카드들을 조회한다.")
     @GetMapping("/todos/search")
-    public ResponseEntity<List<TodoResponseDto>> searchTodo(@RequestParam String param, @AuthenticationPrincipal UserDetailsImpl userDetails){
-        List<TodoResponseDto> todoResponseDtoList = todoService.searchTodo(param, userDetails.getUser().getUsername());
+    public ResponseEntity<Page<TodoResponseDto>> searchTodo(@RequestParam String param,
+                                                            @RequestParam int page,
+                                                            @RequestParam int size,
+                                                            @RequestParam String sortBy,
+                                                            @RequestParam boolean isAsc,
+                                                            @AuthenticationPrincipal UserDetailsImpl userDetails){
+        Page<TodoResponseDto> todoResponseDtoList = todoService.searchTodo(param, userDetails.getUser().getUsername()
+        , page-1, size, sortBy, isAsc);
         return ResponseEntity.status(200).body(todoResponseDtoList);
     }
 
     @Operation(summary = "Get todoList", description = "모든 할일카드들을 조회한다.")
     @GetMapping("/todos")
-    public ResponseEntity<List<TodoResponseDto>> getTodoList(@AuthenticationPrincipal UserDetailsImpl userDetails){
-        List<TodoResponseDto> todoResponseDtoList = todoService.getTodoList(userDetails.getUser().getUsername());
+    public ResponseEntity<Page<TodoResponseDto>> getTodoList(@RequestParam int page,
+                                                             @RequestParam int size,
+                                                             @RequestParam String sortBy,
+                                                             @RequestParam boolean isAsc,
+                                                             @AuthenticationPrincipal UserDetailsImpl userDetails){
+        Page<TodoResponseDto> todoResponseDtoList = todoService.getTodoList(userDetails.getUser().getUsername()
+        , page -1, size, sortBy, isAsc);
         return ResponseEntity.status(200).body(todoResponseDtoList);
     }
 
