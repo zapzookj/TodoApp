@@ -24,6 +24,12 @@ public class User {
     @Column(nullable = false, unique = true)
     private String email;
 
+    @Column
+    private String introduce;
+
+    @Column
+    private String profileImage;
+
     public User(String username, String password, String email) {
         this.username = username;
         this.password = password;
@@ -35,5 +41,10 @@ public class User {
         this.username = username;
         this.email = email;
         this.password = "test";
+    }
+
+    public void update(String introduce, String profileImage) {
+        this.introduce = introduce;
+        this.profileImage = profileImage;
     }
 }
