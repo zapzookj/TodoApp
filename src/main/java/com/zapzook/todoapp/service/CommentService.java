@@ -17,8 +17,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-
 @Service
 @RequiredArgsConstructor
 public class CommentService {
@@ -35,7 +33,7 @@ public class CommentService {
                 .map(CommentResponseDto::new);
     }
 
-    public void createComment(Long todoId, CommentRequestDto requestDto, User user) throws NotFoundException {
+    public void createComment(Long todoId, CommentRequestDto requestDto, User user) {
         Todo todo = util.findTodo(todoId);
         commentRepository.save(new Comment(requestDto.getContents(), todo, user));
     }
