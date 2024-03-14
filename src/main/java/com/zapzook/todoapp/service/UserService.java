@@ -4,10 +4,12 @@ import com.zapzook.todoapp.dto.SignupRequestDto;
 import com.zapzook.todoapp.dto.UserRequestDto;
 import com.zapzook.todoapp.entity.User;
 import com.zapzook.todoapp.repository.UserRepository;
+import com.zapzook.todoapp.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
@@ -16,6 +18,8 @@ import software.amazon.awssdk.services.s3.model.GetUrlRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import java.io.IOException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
 @Service
@@ -25,6 +29,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final S3Client s3Client;
+    private final JwtUtil jwtUtil;
 
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
@@ -50,9 +55,9 @@ public class UserService {
         User user = new User(username, password, email);
         userRepository.save(user);
     }
-
-    public void setProfile(User user, UserRequestDto requestDto) throws IOException {
-        String oldProfileImage = user.getProfileImage();
+    @Transactional
+    public String setProfile(User user, UserRequestDto requestDto) throws IOException {
+        String oldProfileImage = URLDecoder.decode(user.getProfileImage(), StandardCharsets.UTF_8);
         MultipartFile newProfileImage = requestDto.getProfileImage();
 
         if (oldProfileImage != null && !oldProfileImage.isEmpty()) {
@@ -65,11 +70,15 @@ public class UserService {
 
         GetUrlRequest profileImageUrl = GetUrlRequest.builder().bucket(bucket).key(profileImageKey).build();
         String profileImage = s3Client.utilities().getUrl(profileImageUrl).toExternalForm();
-        user.update(requestDto.getIntroduce(), profileImage);
-        userRepository.save(user);
+
+        userRepository.updateProfile(user.getId(), requestDto.getIntroduce(), profileImage);
+
+        String newToken = jwtUtil.createToken(user.getUsername(), user.getId(), user.getEmail(), profileImage, requestDto.getIntroduce());
+        return newToken;
     }
 
     private String extractKeyFromUrl(String imageUrl) {
-        return imageUrl.substring(imageUrl.lastIndexOf('/') + 1);
+        String key = imageUrl.substring(imageUrl.lastIndexOf('/') + 1);
+        return "profile-images/" + key;
     }
 }

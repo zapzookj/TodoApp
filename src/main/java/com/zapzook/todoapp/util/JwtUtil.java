@@ -39,7 +39,7 @@ public class JwtUtil {
     }
 
     // 토큰 생성
-    public String createToken(String username, Long userId, String email) {
+    public String createToken(String username, Long userId, String email, String profileImage, String introduce) {
         Date date = new Date();
 
         return BEARER_PREFIX +
@@ -47,6 +47,8 @@ public class JwtUtil {
                         .setSubject(username) // 사용자 식별자값(ID)
                         .claim("userId", userId)
                         .claim("email", email)
+                        .claim("profileImage", profileImage)
+                        .claim("introduce", introduce)
                         .setExpiration(new Date(date.getTime() + ACCESS_TOKEN_TIME)) // 만료 시간
                         .setIssuedAt(date) // 발급일
                         .signWith(key, signatureAlgorithm) // 암호화 알고리즘

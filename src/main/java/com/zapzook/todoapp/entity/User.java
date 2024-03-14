@@ -36,11 +36,13 @@ public class User {
         this.email = email;
     }
 
-    public User(Long userId, String username, String email) {
+    public User(Long userId, String username, String email, String profileImage, String introduce) {
         this.id = userId;
         this.username = username;
         this.email = email;
-        this.password = "test";
+        this.password = "password";
+        this.profileImage = profileImage;
+        this.introduce = introduce;
     }
 
     public void update(String introduce, String profileImage) {

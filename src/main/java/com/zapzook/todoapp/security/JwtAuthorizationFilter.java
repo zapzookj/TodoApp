@@ -48,8 +48,10 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                     String username = info.getSubject();
                     Long userId = info.get("userId", Long.class);
                     String email = info.get("email", String.class);
+                    String profileImage = info.get("profileImage", String.class);
+                    String introduce = info.get("introduce", String.class);
                     if(refreshTokenRedisRepository.existsByKey(username)) {
-                        String newToken = jwtUtil.createToken(username, userId, email);
+                        String newToken = jwtUtil.createToken(username, userId, email, profileImage, introduce);
                         res.addHeader(JwtUtil.AUTHORIZATION_HEADER, newToken);
                         util.authResult(res, "Access 토큰이 만료되었습니다. 새로운 토큰을 헤더에 발급합니다.", 200);
                         return;
@@ -63,7 +65,8 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                 }
             } else { // 유효한 토큰
                 Claims info = jwtUtil.getUserInfoFromToken(tokenValue);
-                setAuthentication(info.getSubject(), info.get("userId", Long.class), info.get("email", String.class));
+                setAuthentication(info.getSubject(), info.get("userId", Long.class),
+                        info.get("email", String.class), info.get("profileImage", String.class), info.get("introduce", String.class));
             }
         }
 
@@ -71,17 +74,17 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     }
 
     // 인증 처리
-    public void setAuthentication(String username, Long userId, String email) {
+    public void setAuthentication(String username, Long userId, String email, String profileImage, String introduce) {
         SecurityContext context = SecurityContextHolder.createEmptyContext();
-        Authentication authentication = createAuthentication(username, userId, email);
+        Authentication authentication = createAuthentication(username, userId, email, profileImage, introduce);
         context.setAuthentication(authentication);
 
         SecurityContextHolder.setContext(context);
     }
 
     // 인증 객체 생성
-    private Authentication createAuthentication(String username, Long userId, String email) {
-        UserDetails userDetails = new UserDetailsImpl(userId, username, email);
+    private Authentication createAuthentication(String username, Long userId, String email, String profileImage, String introduce) {
+        UserDetails userDetails = new UserDetailsImpl(userId, username, email, profileImage, introduce);
         return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
     }
 }

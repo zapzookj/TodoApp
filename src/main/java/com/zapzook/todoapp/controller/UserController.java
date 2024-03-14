@@ -7,6 +7,7 @@ import com.zapzook.todoapp.security.UserDetailsImpl;
 import com.zapzook.todoapp.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,8 +36,10 @@ public class UserController {
     @Operation(summary = "Post user profile", description = "유저의 프로필을 등록 및 수정한다.")
     @PostMapping("/user/profile")
     public ResponseEntity<ResultResponseDto> setProfile(@AuthenticationPrincipal UserDetailsImpl userDetails,
-                                                        @ModelAttribute UserRequestDto requestDto) throws IOException {
-        userService.setProfile(userDetails.getUser(), requestDto);
-        return ResponseEntity.status(200).body(new ResultResponseDto("유저 프로필 등록(수정) 성공", 200));
+                                                        @ModelAttribute UserRequestDto requestDto,
+                                                        HttpServletResponse response) throws IOException {
+        String newToken = userService.setProfile(userDetails.getUser(), requestDto);
+        response.addHeader("Authorization", newToken);
+        return ResponseEntity.status(200).body(new ResultResponseDto("유저 프로필 등록(수정) 성공, 새로운 토큰이 발급되었습니다.", 200));
     }
 }
