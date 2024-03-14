@@ -33,20 +33,20 @@ public class TodoController {
 
     @Operation(summary = "Get my todoList", description = "본인이 작성한 할일카드들을 조회한다.")
     @GetMapping("/my-todos")
-    public ResponseEntity<List<TodoResponseDto>> getTodoDetails(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ResponseEntity<List<TodoResponseDto>> getMyTodos(@AuthenticationPrincipal UserDetailsImpl userDetails) {
         List<TodoResponseDto> todoResponseDtoList = todoService.getMyTodos(userDetails.getUser().getUsername());
         return ResponseEntity.status(200).body(todoResponseDtoList);
     }
 
     @Operation(summary = "Get searched todo", description = "RequestParam 형식으로 제목에 특정 키워드(param)가 포함된 할일카드들을 조회한다.")
     @GetMapping("/todos/search")
-    public ResponseEntity<Page<TodoResponseDto>> searchTodo(@RequestParam String param,
+    public ResponseEntity<Page<TodoResponseDto>> searchTodos(@RequestParam String param,
                                                             @RequestParam int page,
                                                             @RequestParam int size,
                                                             @RequestParam String sortBy,
                                                             @RequestParam boolean isAsc,
                                                             @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        Page<TodoResponseDto> todoResponseDtoList = todoService.searchTodo(param, userDetails.getUser().getUsername()
+        Page<TodoResponseDto> todoResponseDtoList = todoService.searchTodos(param, userDetails.getUser().getUsername()
         , page-1, size, sortBy, isAsc);
         return ResponseEntity.status(200).body(todoResponseDtoList);
     }

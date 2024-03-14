@@ -35,10 +35,10 @@ public class Todo extends Timestamped{
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    public Todo(TodoRequestDto requestDto, User user){
-        this.title = requestDto.getTitle();
-        this.contents = requestDto.getContents();
-        this.open = requestDto.getOpen();
+    public Todo(String title, String contents, boolean open, User user){
+        this.title = title;
+        this.contents = contents;
+        this.open = open;
         this.user = user;
     }
 

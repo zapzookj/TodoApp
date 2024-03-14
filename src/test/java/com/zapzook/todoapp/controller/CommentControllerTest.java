@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zapzook.todoapp.config.WebSecurityConfig;
 import com.zapzook.todoapp.dto.CommentRequestDto;
 import com.zapzook.todoapp.dto.CommentResponseDto;
-import com.zapzook.todoapp.dto.TodoRequestDto;
 import com.zapzook.todoapp.entity.Comment;
 import com.zapzook.todoapp.entity.Todo;
 import com.zapzook.todoapp.entity.User;
@@ -20,6 +19,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.test.web.servlet.MockMvc;
@@ -27,14 +28,13 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.security.Principal;
+import java.util.ArrayList;
+import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
-
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -69,91 +69,124 @@ class CommentControllerTest {
     @MockBean
     private UserService userService;
 
-    private User user;
-    private Todo todo;
+    private List<CommentResponseDto> commentList = new ArrayList<>();
 
-    private Comment comment;
-    private CommentRequestDto commentRequestDto;
-    private CommentResponseDto commentResponseDto;
+    private Page<CommentResponseDto> page;
 
     @BeforeEach
     public void setup() {
         mvc = MockMvcBuilders.webAppContextSetup(context)
-                .apply(springSecurity(new MockSpringSecurityFilter()))
+                .addFilter(new MockSpringSecurityFilter())
                 .build();
     }
 
     @BeforeEach
     void mockUserSetup() {
-        // Mock 테스트 유져 생성
-        String username = "name";
+        String username = "test";
         String password = "password";
-        String email = "test@email.com";
+        String email = "email@email.com";
         User testUser = new User(username, password, email);
-//        testUser.setId(1L);
         UserDetailsImpl testUserDetails = new UserDetailsImpl(testUser);
-        mockPrincipal = new UsernamePasswordAuthenticationToken(testUserDetails, null, null);
-        TodoRequestDto requestDto = new TodoRequestDto("테스트 제목", "테스트 내용", true);
-        todo = new Todo(requestDto, testUser);
-        todo.setId(1L);
-//        this.user = new User("test", "test", "test@email.com");
-        this.user = testUser;
+        mockPrincipal = new UsernamePasswordAuthenticationToken(testUserDetails, null, testUserDetails.getAuthorities());
+    }
 
-        comment = new Comment();
-        comment.setId(1L);
-        comment.setContents("Test Comment");
-        comment.setUser(user);
-        comment.setTodo(todo);
-        commentRequestDto = new CommentRequestDto("Test Comment");
-        commentResponseDto = new CommentResponseDto(1L, "Test Comment", user.getUsername());
+    void commentListSetup() {
+        User user = new User("testname", "testpassword", "test@email.com");
+        Todo todo = new Todo("test title", "test contents", true, user);
+        Comment comment1 = new Comment("test1", todo, user);
+        Comment comment2 = new Comment("test2", todo, user);
+
+        this.commentList.add(new CommentResponseDto(comment1));
+        this.commentList.add(new CommentResponseDto(comment2));
+
+        this.page = new PageImpl<>(commentList);
     }
 
     @Test
     @DisplayName("댓글 생성")
     void createCommentTest() throws Exception {
-        given(commentService.createComment(anyLong(), any(CommentRequestDto.class), any(User.class)))
-                .willReturn(commentResponseDto);
-        System.out.println(todo.getId());
+        // given
+        mockUserSetup();
+        Long todoId = 1L;
+        CommentRequestDto requestDto = new CommentRequestDto("test");
+        String requestBody = objectMapper.writeValueAsString(requestDto);
 
-        mvc.perform(post("/api/todo/{todoId}/comment", todo.getId())
+        // when - then
+        mvc.perform(post("/api/todo/{todoId}/comment", todoId)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(commentRequestDto))
+                        .content(requestBody)
                         .principal(mockPrincipal))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.commentId").value(commentResponseDto.getCommentId()))
-                .andExpect(jsonPath("$.contents").value(commentResponseDto.getContents()))
-                .andExpect(jsonPath("$.commentWriter").value(commentResponseDto.getCommentWriter()))
+                .andExpect(jsonPath("$.message").value("댓글 작성 성공"))
+                .andExpect(jsonPath("$.statusCode").value(200));
+    }
+
+    @Test
+    @DisplayName("댓글 조회")
+    void getCommentsTest() throws Exception {
+        // given
+        mockUserSetup();
+        commentListSetup();
+        Long todoId = 1L;
+        int page = 0;
+        int size = 5;
+        String sortBy = "contents";
+        boolean isAsc = true;
+
+        // when
+        given(commentService.getComments(todoId, page, size, sortBy, isAsc)).willReturn(this.page);
+
+        // then
+        mvc.perform(get("/api/todo/{todoId}/comment", todoId)
+                        .param("page", "0")
+                        .param("size", "5")
+                        .param("sortBy", "contents")
+                        .param("isAsc", "true")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
                 .andDo(print());
     }
 
     @Test
     @DisplayName("댓글 수정")
     void updateCommentTest() throws Exception {
-        given(commentService.updateComment(anyLong(), anyLong(), any(CommentRequestDto.class), any(User.class)))
-                .willReturn(commentResponseDto);
+        // given
+        mockUserSetup();
+        Long todoId = 1L;
+        Long commentId = 1L;
+        CommentRequestDto requestDto = new CommentRequestDto("test");
+        String requestBody = objectMapper.writeValueAsString(requestDto);
 
-        mvc.perform(put("/api/todo/{todoId}/comment/{commentId}", todo.getId(), comment.getId())
+        // when
+        doNothing().when(commentService).updateComment(eq(todoId), eq(commentId), any(CommentRequestDto.class), any(User.class));
+
+        // then
+        mvc.perform(put("/api/todo/{todoId}/comment/{commentId}", todoId, commentId)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(commentRequestDto))
+                        .content(requestBody)
                         .principal(mockPrincipal))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.commentId").value(commentResponseDto.getCommentId()))
-                .andExpect(jsonPath("$.contents").value(commentResponseDto.getContents()))
-                .andExpect(jsonPath("$.commentWriter").value(commentResponseDto.getCommentWriter()))
-                .andDo(print());
+                .andExpect(jsonPath("$.message").value("댓글 수정 성공"))
+                .andExpect(jsonPath("$.statusCode").value(200));
     }
 
     @Test
     @DisplayName("댓글 삭제")
     void deleteCommentTest() throws Exception {
-        doNothing().when(commentService).deleteComment(anyLong(), anyLong(), any(User.class));
+        // given
+        mockUserSetup();
+        Long todoId = 1L;
+        Long commentId = 1L;
 
-        mvc.perform(delete("/api/todo/{todoId}/comment/{commentId}", todo.getId(), comment.getId()).principal(mockPrincipal))
+        // when
+        doNothing().when(commentService).deleteComment(eq(todoId), eq(commentId), any(User.class));
+
+        // then
+        mvc.perform(delete("/api/todo/{todoId}/comment/{commentId}", todoId, commentId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .principal(mockPrincipal))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("삭제 성공."))
-                .andDo(print());
+                .andExpect(jsonPath("$.message").value("댓글 삭제 성공"))
+                .andExpect(jsonPath("$.statusCode").value(200));
     }
-
-
-
 }

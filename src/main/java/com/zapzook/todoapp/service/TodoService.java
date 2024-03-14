@@ -26,7 +26,7 @@ public class TodoService {
     private final Util util;
     @Transactional
     public void createTodo(TodoRequestDto requestDto, User user) {
-        todoRepository.save(new Todo(requestDto, user));
+        todoRepository.save(new Todo(requestDto.getTitle(), requestDto.getContents(), requestDto.getOpen(), user));
     }
 
     public TodoResponseDto getTodo(Long todoId, String username) {
@@ -59,7 +59,7 @@ public class TodoService {
         todo.complete();
     }
 
-    public Page<TodoResponseDto> searchTodo(String param, String username, int page, int size, String sortBy, boolean isAsc) {
+    public Page<TodoResponseDto> searchTodos(String param, String username, int page, int size, String sortBy, boolean isAsc) {
         Pageable pageable = setPageable(page, size, sortBy, isAsc);
         return todoRepositoryQuery.findAllByParamAndUserName(param, username, pageable).map(TodoResponseDto::new);
     }
