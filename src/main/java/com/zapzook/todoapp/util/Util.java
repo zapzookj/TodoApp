@@ -38,7 +38,7 @@ public class Util {
     }
 
     public Comment findComment(Long todoId, User user, Long commentId) throws NotFoundException {
-        Todo todo = findTodo(todoId);
+        findTodo(todoId);
         Comment comment = commentRepository.findById(commentId).orElseThrow(
                 () -> new NotFoundException("해당 댓글이 존재하지 않습니다.")
         );

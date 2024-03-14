@@ -3,6 +3,9 @@ package com.zapzook.todoapp.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zapzook.todoapp.config.WebSecurityConfig;
 import com.zapzook.todoapp.dto.SignupRequestDto;
+import com.zapzook.todoapp.dto.UserRequestDto;
+import com.zapzook.todoapp.entity.User;
+import com.zapzook.todoapp.security.UserDetailsImpl;
 import com.zapzook.todoapp.security.UserDetailsServiceImpl;
 import com.zapzook.todoapp.service.UserService;
 import com.zapzook.todoapp.util.JwtUtil;
@@ -15,15 +18,21 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.security.Principal;
 
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
@@ -36,6 +45,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
                 )
         }
 )
+@ActiveProfiles("test")
 class UserControllerTest {
 
     private MockMvc mvc;
@@ -51,28 +61,26 @@ class UserControllerTest {
     @MockBean
     private UserService userService;
 
-    @MockBean
-    private UserDetailsServiceImpl userDetailsService;
-
-    @MockBean
-    private JwtUtil jwtUtil;
-
-    @MockBean
-    private AuthenticationConfiguration authenticationConfiguration;
-
-    @MockBean
-    private RefreshTokenRepository refreshTokenRepository;
 
     @BeforeEach
     public void setup() {
         mvc = MockMvcBuilders.webAppContextSetup(context)
-                .apply(springSecurity(new MockSpringSecurityFilter()))
+                .addFilter(new MockSpringSecurityFilter())
                 .build();
+    }
+
+    private void mockUserSetup() {
+        String username = "test";
+        String password = "password";
+        String email = "email@email.com";
+        User testUser = new User(username, password, email);
+        UserDetailsImpl testUserDetails = new UserDetailsImpl(testUser);
+        mockPrincipal = new UsernamePasswordAuthenticationToken(testUserDetails, "", testUserDetails.getAuthorities());
     }
 
     @Test
     @DisplayName("회원가입 - 성공")
-    void signupSuccess() throws Exception {
+    void signupSuccessTest() throws Exception {
         // given
         SignupRequestDto signupRequestDto = new SignupRequestDto("name", "password", "test@sparta.com");
         String signupRequestBody = objectMapper.writeValueAsString(signupRequestDto);
@@ -81,12 +89,14 @@ class UserControllerTest {
         mvc.perform(post("/api/user/signup")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(signupRequestBody))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("회원가입 성공"))
+                .andExpect(jsonPath("$.statusCode").value(200));
     }
 
     @Test
     @DisplayName("회원가입 - 실패(Validation 오류)")
-    void signupFail() throws Exception {
+    void signupFailTest() throws Exception {
         // given
         SignupRequestDto signupRequestDto = new SignupRequestDto("Name", "password!", "testsparta.com");
         String signupRequestBody = objectMapper.writeValueAsString(signupRequestDto);
@@ -96,6 +106,28 @@ class UserControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(signupRequestBody))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("프로필 등록")
+    @WithMockUser(username = "test")
+    void setProfileTest() throws Exception {
+        // given
+        mockUserSetup();
+        MockMultipartFile profileImage = new MockMultipartFile("profileImage", "profile.jpg", "image/jpeg", "image data".getBytes());
+
+        UserRequestDto requestDto = new UserRequestDto(profileImage, "test");
+
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.multipart("/api/user/profile")
+                .file(profileImage)
+                        .param("introduce", requestDto.getIntroduce())
+                                .contentType(MediaType.MULTIPART_FORM_DATA)
+                                        .principal(mockPrincipal);
+        // when - then
+        mvc.perform(requestBuilder)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("유저 프로필 등록(수정) 성공, 새로운 토큰이 발급되었습니다."))
+                .andExpect(jsonPath("$.statusCode").value(200));
     }
 
 }

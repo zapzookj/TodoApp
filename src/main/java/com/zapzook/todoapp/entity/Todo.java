@@ -42,9 +42,9 @@ public class Todo extends Timestamped{
         this.user = user;
     }
 
-    public void update(TodoRequestDto requestDto) {
-        this.title = requestDto.getTitle();
-        this.contents = requestDto.getContents();
+    public void update(String title, String contents) {
+        this.title = title;
+        this.contents = contents;
     }
 
     public void complete() {

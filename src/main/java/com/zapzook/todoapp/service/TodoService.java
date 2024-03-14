@@ -51,7 +51,7 @@ public class TodoService {
     @Transactional
     public void updateTodo(Long todoId, TodoRequestDto requestDto, User user) {
         Todo todo = util.findTodo(todoId, user);
-        todo.update(requestDto);
+        todo.update(requestDto.getTitle(), requestDto.getContents());
     }
     @Transactional
     public void completeTodo(Long todoId, User user) {
