@@ -62,6 +62,73 @@
 - [X] 프로젝트에 swagger 적용
 - [X] AccessToken, RefreshToken 구현 (DB에서 구현)
 
+# **레거시 코드 리팩토링**
+
+## **코드 개선 및 추가적인 기능 구현**
+- [X]  **Controller 기능 개선**
+  - UserController 기능 개선 : 예외 처리 핸들러를 활용
+  - TodoController 기능 개선 : API URL 개선, ResponseEntity를 이용한 반환값 통일
+  - CommentController 기능 개선 : ResponseEntity를 이용한 반환값 통일
+- [X]  **Service 기능 개선**
+  - TodoService 기능 개선 : 쿼리 메서드를 활용한 성능 최적화, Comment 도메인과 관심사 분리
+  - CommentService 기능 개선 : 댓글 조회 API 추가
+- [X]  **CustomException 추가**
+  - NotFoundException 추가
+- [X]  **AOP 기능 추가**
+  - ApiUseTime AOP 기능 추가 : 유저별 API 사용 시간 기록
+- [X]  **JWT 인가 로직 개선**
+  - JWT 토큰이 무상태성을 유지할 수 있도록 로직 수정
+  - JWT 토큰을 통한 유저 인증 시, DB를 조회하지 않고 JWT 토큰에 담긴 정보만으로 유저 인증 및 인증 객체 생성
+  - 사용자 인가가 필요한 API에 접근 시, 불필요한 유저 조회 쿼리 생성 제거
+- [X]  **QueryDSL 적용**
+  - 각 도메인별로 QueryDSL을 적용하여 RepositoryQueryImpl 생성
+  - N+1 문제 해결
+- [X]  **페이징 및 정렬 기능 적용**
+  - Pageable을 사용하여 원하는 페이지 사이즈만큼 조회할 수 있도록 개선
+- [X]  **Redis 적용 및 Refresh Token 기능 추가**
+  - Docker를 활용하여 프로젝트에 Redis 적용
+  - 인증 및 인가 로직에 Refresh Token 기능 추가
+- [X]  **AWS S3 적용**
+  - User 프로필 등록 API 추가
+  - AWS S3를 활용하여 유저의 프로필 이미지를 저장 및 조회할 수 있는 기능 추가
+- [X]  **테스트 코드 개선**
+  - Entity 테스트 코드 추가
+  - 추가된 기능들을 포함하여 Controller, Service, Repository 테스트 코드 개선
+
+## **추가적으로 개선해야 할 사항**
+- []  **JWT 토큰 검증 중복 문제 개선**
+  - JwtAuthorizationFilter > doFilterInternal() 메서드 개선 필요
+- []  **불필요한 쿼리 생성 최적화**
+  - 불필요한 find 쿼리 메서드 대신 exist로 대체
+- []  **테스트 코드 추가**
+  - Redis, AWS S3 관련 테스트 코드
+  - Aop 테스트 코드
+  - util 테스트 코드
+  - 통합 테스트 코드
+
+## **프로젝트 진행 중 생긴 궁금한 점**
+### **createToken VS Select Query**
+이번 레거시 코드 개선 프로젝트에서 저는 JWT가 무상태성을 유지할 수 있도록 JWT 관련 코드를 개선하였습니다.
+코드가 개선된 이후에는 유저 인가가 필요한 API에 접근할 때 DB에 유저 조회를 해서 User 객체를 생성하는 방식이 아닌,
+JWT에 담긴 유저 정보로 UserDetails와 User 객체를 생성하도록 로직이 변경되었습니다.
+
+이후 User 프로필 등록 API를 구현하였는데, 여기서 두 가지 문제점이 발생했습니다.
+
+1.JWT 토큰에는 유저 패스워드가 포함되어 있지 않은데, JWT 토큰을 통해 생성한 User 객체를 새로 등록된 프로필 정보와 함께 DB에 업데이트하니 DB에 있던 User 패스워드가 날아가버림
+2.JWT 토큰을 통해 로그인한 유저가 프로필 등록 API를 통해 DB에 유저 정보를 갱신해도, 해당 갱신된 정보가 JWT 토큰에는 갱신되지 않음.
+즉, JWT 토큰을 새로 발급받기 전까진 수정된 프로필 정보를 조회할 수 없음.
+
+일단, 1번 문제는 수정된 정보만을 업데이트하는 JPQL을 새로 만들어서 해결하였습니다.
+2번 문제는 로그인을 다시 해서 JWT 토큰을 새로 발급받으면 해결될 문제지만, 그건 클라이언트 입장에서 너무 번거로울 것 같다는 생각이 들었습니다.
+따라서 제가 떠올린 해결 방법은 두 가지였습니다.
+
+1.프로필 관련 API에서 DB User 조회 쿼리를 발생시킨다.
+2.프로필 수정을 할 때마다, 새로운 Access Token을 생성해 클라이언트에게 반환한다.
+
+두 방식 모두 서버 입장에서 추가적인 비용이 발생하기는 하지만, 저는 일단 2번 방식을 통해서 문제를 해결했습니다.
+두 방식중 어떤 방식이 서버 입장에서 부담이 적은 방식일지 궁금합니다.
+또 이 외에 다른 해결 방법이 있는지 궁금합니다.
+
 # API 명세서
 ![스크린샷 2024-02-02 163917](https://github.com/zapzookj/TodoApp/assets/154570825/66576163-9f2d-484c-914b-8e1714d6eac3)
 ![4321](https://github.com/zapzookj/TodoApp/assets/154570825/5a491228-7e40-45b7-8c3d-8a60cb76f818)
