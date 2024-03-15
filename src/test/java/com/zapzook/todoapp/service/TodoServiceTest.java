@@ -125,7 +125,7 @@ class TodoServiceTest {
     void getMyTodosTest() {
         // given
         todoListSetup();
-        given(todoRepositoryQuery.findAllWithUser(user.getUsername())).willReturn(todoList);
+        given(todoRepositoryQuery.findAllTodosByUser(user.getUsername())).willReturn(todoList);
 
         // when
         List<TodoResponseDto> result = todoService.getMyTodos(user.getUsername());
@@ -145,7 +145,7 @@ class TodoServiceTest {
         String sortBy = "title";
         boolean isAsc = true;
         Pageable pageable = PageRequest.of(pageNum, size, Sort.by(isAsc ? Sort.Direction.ASC : Sort.Direction.DESC, sortBy));
-        given(todoRepositoryQuery.findAllByUserName(user.getUsername(), pageable)).willReturn(page);
+        given(todoRepositoryQuery.findAllTodosVisibleToUser(user.getUsername(), pageable)).willReturn(page);
 
         // when
         Page<TodoResponseDto> result = todoService.getTodoList(user.getUsername(), pageNum, size, sortBy, isAsc);
@@ -166,7 +166,7 @@ class TodoServiceTest {
         String sortBy = "title";
         boolean isAsc = true;
         Pageable pageable = PageRequest.of(pageNum, size, Sort.by(isAsc ? Sort.Direction.ASC : Sort.Direction.DESC, sortBy));
-        given(todoRepositoryQuery.findAllByParamAndUserName(param, user.getUsername(), pageable)).willReturn(page);
+        given(todoRepositoryQuery.searchTodosByTitle(param, user.getUsername(), pageable)).willReturn(page);
 
         // when
         Page<TodoResponseDto> result = todoService.searchTodos(param, user.getUsername(), pageNum, size, sortBy, isAsc);

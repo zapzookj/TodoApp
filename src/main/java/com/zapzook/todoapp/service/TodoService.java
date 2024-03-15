@@ -41,12 +41,12 @@ public class TodoService {
     }
 
     public List<TodoResponseDto> getMyTodos(String username) {
-        return todoRepositoryQuery.findAllWithUser(username).stream().map(TodoResponseDto::new).toList();
+        return todoRepositoryQuery.findAllTodosByUser(username).stream().map(TodoResponseDto::new).toList();
     }
 
     public Page<TodoResponseDto> getTodoList(String username, int page, int size, String sortBy, boolean isAsc) {
         Pageable pageable = setPageable(page, size, sortBy, isAsc);
-        return todoRepositoryQuery.findAllByUserName(username, pageable).map(TodoResponseDto::new);
+        return todoRepositoryQuery.findAllTodosVisibleToUser(username, pageable).map(TodoResponseDto::new);
     }
     @Transactional
     public void updateTodo(Long todoId, TodoRequestDto requestDto, User user) {
@@ -61,7 +61,7 @@ public class TodoService {
 
     public Page<TodoResponseDto> searchTodos(String param, String username, int page, int size, String sortBy, boolean isAsc) {
         Pageable pageable = setPageable(page, size, sortBy, isAsc);
-        return todoRepositoryQuery.findAllByParamAndUserName(param, username, pageable).map(TodoResponseDto::new);
+        return todoRepositoryQuery.searchTodosByTitle(param, username, pageable).map(TodoResponseDto::new);
     }
 
     public Pageable setPageable(int page, int size, String sortBy, boolean isAsc) {

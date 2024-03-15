@@ -3,7 +3,6 @@ package com.zapzook.todoapp.repository;
 import com.querydsl.core.types.dsl.Wildcard;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.zapzook.todoapp.entity.Comment;
-import com.zapzook.todoapp.entity.QComment;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.springframework.data.domain.Page;
@@ -11,7 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
+import static com.zapzook.todoapp.entity.QComment.comment;
 
 @Repository
 public class CommentRepositoryQueryImpl {
@@ -25,8 +24,6 @@ public class CommentRepositoryQueryImpl {
     }
 
     public Page<Comment> findByTodoId(Long todoId, Pageable pageable) {
-        QComment comment = QComment.comment;
-
         var query = qf
                 .selectFrom(comment)
                 .leftJoin(comment.todo).fetchJoin()

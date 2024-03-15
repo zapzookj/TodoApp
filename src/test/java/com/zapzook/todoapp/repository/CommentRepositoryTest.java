@@ -31,30 +31,20 @@ class CommentRepositoryTest {
     @BeforeEach
     public void setUp() {
 
-        User user = new User();
-        user.setUsername("user");
-        user.setPassword("password");
-        user.setEmail("test@email.com");
+        User user = new User("testname", "password", "test@email.com");
         savedUser = userRepository.save(user);
 
-        Todo todo = new Todo();
-        todo.setTitle("todo");
-        todo.setContents("contents");
-        todo.setOpen(true);
-        todo.setUser(savedUser);
+        Todo todo = new Todo("Test title", "Test contents", true, savedUser);
         savedTodo = todoRepository.save(todo);
 
 
-        Comment comment = new Comment();
-        comment.setContents("contents");
-        comment.setUser(savedUser);
-        comment.setTodo(savedTodo);
+        Comment comment = new Comment("contents", savedTodo, savedUser);
         commentRepository.save(comment);
     }
 
     @Test
     @DisplayName("findByTodoId - 성공")
-    void findByTodoIdSuccess() {
+    void findByTodoIdTestSuccess() {
         // given
         Long todoId = savedTodo.getId();
 
@@ -69,7 +59,7 @@ class CommentRepositoryTest {
 
     @Test
     @DisplayName("findByTodoId - 실패 (todoId 존재 X)")
-    void findByTodoIdFail() {
+    void findByTodoIdTestFail() {
         // given
         Long todoId = 999L;
 

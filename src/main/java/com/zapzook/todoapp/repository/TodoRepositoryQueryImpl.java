@@ -26,7 +26,7 @@ public class TodoRepositoryQueryImpl {
         this.qf = new JPAQueryFactory(em);
     }
 
-    public Todo findByIdWithUser(Long todoId) {
+    public Todo findTodoWithUserById(Long todoId) {
         return qf
                 .selectFrom(todo)
                 .leftJoin(todo.user).fetchJoin()
@@ -34,7 +34,7 @@ public class TodoRepositoryQueryImpl {
                 .fetchOne();
     }
 
-    public List<Todo> findAllWithUser(String username) {
+    public List<Todo> findAllTodosByUser(String username) {
         return qf
                 .selectFrom(todo)
                 .leftJoin(todo.user).fetchJoin()
@@ -42,7 +42,7 @@ public class TodoRepositoryQueryImpl {
                 .fetch();
     }
 
-    public Page<Todo> findAllByUserName(String username, Pageable pageable) {
+    public Page<Todo> findAllTodosVisibleToUser(String username, Pageable pageable) {
         var query = qf
                 .selectFrom(todo)
                 .leftJoin(todo.user).fetchJoin()
@@ -69,14 +69,14 @@ public class TodoRepositoryQueryImpl {
         return PageableExecutionUtils.getPage(todos, pageable, () -> totalSize);
     }
 
-    public Page<Todo> findAllByParamAndUserName(String param, String username, Pageable pageable) {
+    public Page<Todo> searchTodosByTitle(String param, String username, Pageable pageable) {
         var query = qf
                 .selectFrom(todo)
                 .leftJoin(todo.user).fetchJoin()
                 .where(
                         todo.title.contains(param)
-                                .and(todo.open.isTrue()
-                                        .and(todo.completed.isFalse()
+                                .and(todo.completed.eq(false)
+                                        .and(todo.open.eq(true)
                                                 .or(todo.user.username.eq(username)))));
         query.orderBy(todo.createdAt.desc());
 
@@ -91,9 +91,9 @@ public class TodoRepositoryQueryImpl {
                 .leftJoin(todo.user)
                 .where(
                         todo.title.contains(param)
-                                .and(todo.open.isTrue().
-                                        and(todo.completed.isFalse().
-                                                or(todo.user.username.eq(username)))))
+                                .and(todo.completed.eq(false)
+                                        .and(todo.open.eq(true)
+                                                .or(todo.user.username.eq(username)))))
                 .fetch().get(0);
 
         return PageableExecutionUtils.getPage(todos, pageable, () -> totalSize);

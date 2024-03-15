@@ -26,7 +26,7 @@ public class Util {
     public final TodoRepositoryQueryImpl todoRepositoryQuery;
 
     public Todo findTodo(Long todoId) {
-        return todoRepositoryQuery.findByIdWithUser(todoId);
+        return todoRepositoryQuery.findTodoWithUserById(todoId);
     }
 
     public Todo findTodo(Long todoId, User user) {
